@@ -11,6 +11,7 @@ const code = readFileSync(join(root, "extension", "service_worker.js"), "utf8");
 test("extension: service worker module evaluates and polls without throwing", async () => {
   let polls = 0;
   const listeners = {};
+  const store = {};
   const sandbox = {
     console,
     setInterval: () => 0,
@@ -32,6 +33,12 @@ test("extension: service worker module evaluates and polls without throwing", as
       alarms: { create: () => {}, onAlarm: { addListener: () => {} } },
       tabs: { query: async () => [], update: async () => ({}), get: async () => ({}) },
       scripting: { executeScript: async () => [{ result: [] }] },
+      storage: {
+        local: {
+          get: async (key) => ({ [key]: store[key] }),
+          set: async (obj) => { Object.assign(store, obj); },
+        },
+      },
     },
   };
   vm.createContext(sandbox);
@@ -49,6 +56,9 @@ test("extension: service worker module evaluates and polls without throwing", as
   await listeners.message({ type: "poll-now" });
   await tick();
   assert.equal(polls, 4, "poll-now pollOnce");
+  // 心跳每次轮询都写 storage（跨 vm 比值）
+  assert.equal(JSON.stringify(store.swHeartbeat && store.swHeartbeat.polls), "4");
+  assert.equal(store.swHeartbeat && store.swHeartbeat.state, "ok");
 });
 
 test("extension: tab.new/tab.close dispatch through a scripted bridge", async () => {

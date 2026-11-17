@@ -15,8 +15,10 @@ let uidSeq = 0;
 async function pollOnce() {
   if (polling) return;
   polling = true;
+  await heartbeat("attempt", false);
   try {
     const res = await fetch(`${BRIDGE}/next?name=${encodeURIComponent("DSH Chrome Connector")}`, { cache: "no-store" });
+    await heartbeat(res.ok ? "ok" : `http-${res.status}`);
     if (!res.ok) return;
     const msg = await res.json().catch(() => null);
     if (!msg || msg.type !== "command" || !msg.command) return;
@@ -32,10 +34,25 @@ async function pollOnce() {
       pollOnce();
     }
   } catch {
+    await heartbeat("fetch-failed");
     // bridge down — 2s 后由闹钟/interval 重试
     await new Promise((r) => setTimeout(r, 2000));
   } finally {
     polling = false;
+  }
+}
+
+// 每次轮询都写 storage：popup 直接读，不靠 SW 存活。用户报问题时看这三行就够。
+async function heartbeat(state, bump = true) {
+  try {
+    const { swHeartbeat = {} } = await chrome.storage.local.get("swHeartbeat");
+    const polls = (swHeartbeat.polls || 0) + (bump ? 1 : 0);
+    await chrome.storage.local.set({
+      swHeartbeat: { polls, state, at: Date.now(), version: EXT_VERSION },
+    });
+    console.log(`[dsh-chrome] poll #${polls}: ${state}`);
+  } catch {
+    // storage 不可用也不影响轮询本身
   }
 }
 
