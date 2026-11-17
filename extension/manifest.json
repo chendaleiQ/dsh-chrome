@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "DSH Chrome Connector",
+  "name": "__MSG_appName__",
   "version": "0.1.0",
-  "description": "Poll the local DSH bridge and drive the signed-in Chrome profile. Fresh implementation, no pi-chrome code.",
-  "permissions": ["tabs", "tabGroups", "scripting", "storage", "alarms"],
+  "default_locale": "en",
+  "description": "__MSG_appDesc__",
+  "permissions": ["tabs", "scripting", "storage", "alarms"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "service_worker.js"

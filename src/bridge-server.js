@@ -1,7 +1,6 @@
 /**
- * dsh-chrome — 本地桥服务端（全新重写）。
+ * dsh-chrome — 本地桥服务端。
  *
- * 行为对照 pi-chrome 的 loopback bridge（研究库仅做行为参考）：
  *   GET  /status  -> { url, mode, connected, lastSeenAt, clientName, queuedCommands, pendingCommands }
  *   POST /command -> 入队，等待扩展经 GET /next 取走、POST /result 回传后返回
  *   GET  /next    -> 扩展长轮询（最长 25s），有命令返回 { type:"command", command }，无命令返回 { type:"none" }

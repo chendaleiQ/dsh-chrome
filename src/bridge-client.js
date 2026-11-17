@@ -1,8 +1,7 @@
 /**
- * dsh-chrome — DSH 侧本地桥客户端（全新重写）。
+ * dsh-chrome — DSH 侧本地桥客户端。
  *
- * 对照行为：pi-chrome 的 loopback bridge（研究库 research/pi-chrome-upstream，
- * 不打包不复制）。本文件只实现我们自己的最小 wire 协议：
+ * 最小 wire 协议：
  *   GET  /status            -> { url, mode, connected, lastSeenAt, clientName }
  *   POST /command { id, action, params } -> { ok, result } 或 { ok:false, error }
  *

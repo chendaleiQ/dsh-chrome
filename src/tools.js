@@ -121,7 +121,7 @@ export function buildTools({ send, bridgeStatus, config, saveScreenshot, session
   return [
     {
       name: "chrome_status",
-      description: "Check local Chrome bridge connection. Returns connected, browser, targets. Call first when other chrome_* tools fail.",
+      description: "检查本地 Chrome 桥连接状态；其他 chrome_* 出错时先调它。Check the local Chrome bridge connection; call first when other chrome_* tools fail.",
       parameters: {},
       output: {
         schema: {
@@ -160,10 +160,10 @@ export function buildTools({ send, bridgeStatus, config, saveScreenshot, session
     },
     {
       name: "chrome_tabs_list",
-      description: "List open tabs. Returns bounded list with id, title, url.",
+      description: "列出已打开的标签页（有界输出）。List open tabs with bounded output.",
       parameters: {
-        limit: { type: "integer", description: "Max tabs to return (1-50, default 20)." },
-        query: { type: "string", description: "Optional substring filter on title or url." },
+        limit: { type: "integer", description: "最多返回几个（1-50，默认 20）。Max tabs to return (1-50, default 20)." },
+        query: { type: "string", description: "按标题或 URL 子串过滤。Substring filter on title or url." },
       },
       output: {
         schema: {
@@ -207,9 +207,9 @@ export function buildTools({ send, bridgeStatus, config, saveScreenshot, session
     },
     {
       name: "chrome_tab_select",
-      description: "Activate one tab by id. Does not navigate or close.",
+      description: "按 id 激活一个标签页；不导航、不关闭。Activate one tab by id; no navigation or close.",
       parameters: {
-        tabId: { type: "string", required: true, description: "Tab id from chrome_tabs_list." },
+        tabId: { type: "string", required: true, description: "chrome_tabs_list 给出的 id。Tab id from chrome_tabs_list." },
       },
       output: {
         schema: {
@@ -229,9 +229,9 @@ export function buildTools({ send, bridgeStatus, config, saveScreenshot, session
     },
     {
       name: "chrome_tab_new",
-      description: "Open a new background tab, optionally with a URL. Tracked as an owned tab for later cleanup.",
+      description: "后台开一个新标签页（可选 URL），记为自有标签待清理。Open a new background tab, optionally with a URL; tracked as owned.",
       parameters: {
-        url: { type: "string", description: "https URL to open. Defaults to about:blank." },
+        url: { type: "string", description: "要打开的 https URL，默认 about:blank。URL to open; defaults to about:blank." },
       },
       output: {
         schema: {
@@ -256,9 +256,9 @@ export function buildTools({ send, bridgeStatus, config, saveScreenshot, session
     },
     {
       name: "chrome_tab_close",
-      description: "Close one tab by id.",
+      description: "按 id 关闭一个标签页。Close one tab by id.",
       parameters: {
-        tabId: { type: "string", required: true, description: "Tab id from chrome_tabs_list." },
+        tabId: { type: "string", required: true, description: "chrome_tabs_list 给出的 id。Tab id from chrome_tabs_list." },
       },
       output: {
         schema: {
@@ -277,10 +277,10 @@ export function buildTools({ send, bridgeStatus, config, saveScreenshot, session
     },
     {
       name: "chrome_snapshot",
-      description: "Capture accessibility snapshot of a tab. Returns refs like [ref=12] for later actions. Prefer this over screenshot for reading.",
+      description: "抓取标签页无障碍快照，返回 [ref=N] 供后续操作；阅读优先用它而不是截图。Capture an accessibility snapshot with [ref=N] handles; prefer this over screenshots for reading.",
       parameters: {
-        tabId: { type: "string", description: "Defaults to active tab." },
-        maxChars: { type: "integer", description: "Max snapshot chars (1000-20000)." },
+        tabId: { type: "string", description: "默认当前活动标签页。Defaults to the active tab." },
+        maxChars: { type: "integer", description: "快照最大字符数（1000-20000）。Max snapshot chars (1000-20000)." },
       },
       output: {
         schema: {
@@ -301,10 +301,10 @@ export function buildTools({ send, bridgeStatus, config, saveScreenshot, session
     },
     {
       name: "chrome_navigate",
-      description: "Navigate a tab to an https URL. Private hosts are blocked.",
+      description: "导航到 https URL；私有地址直接拒绝。Navigate to an https URL; private hosts are rejected.",
       parameters: {
-        url: { type: "string", required: true, description: "https URL to open." },
-        tabId: { type: "string", description: "Defaults to active tab." },
+        url: { type: "string", required: true, description: "要打开的 https URL。https URL to open." },
+        tabId: { type: "string", description: "默认当前活动标签页。Defaults to the active tab." },
       },
       output: {
         schema: {
@@ -327,10 +327,10 @@ export function buildTools({ send, bridgeStatus, config, saveScreenshot, session
     },
     {
       name: "chrome_screenshot",
-      description: "Screenshot a tab to a file. Returns path and size, not image bytes.",
+      description: "截屏落盘，只返回 path 和尺寸，不回图片字节。Screenshot to a file; returns path and size, not image bytes.",
       parameters: {
-        tabId: { type: "string", description: "Defaults to active tab." },
-        fullPage: { type: "boolean", description: "Full page costs more; default viewport only." },
+        tabId: { type: "string", description: "默认当前活动标签页。Defaults to the active tab." },
+        fullPage: { type: "boolean", description: "整页更耗资源；默认只截可视区。Full page costs more; default viewport only." },
       },
       output: {
         schema: {
@@ -353,10 +353,10 @@ export function buildTools({ send, bridgeStatus, config, saveScreenshot, session
     },
     {
       name: "chrome_evaluate",
-      description: "Run a read-only JavaScript expression in the page and return a truncated JSON result.",
+      description: "在页面里执行只读 JS 表达式，返回截断后的 JSON。Evaluate a read-only JS expression; returns truncated JSON.",
       parameters: {
-        expression: { type: "string", required: true, description: "Single JS expression, e.g. document.title." },
-        tabId: { type: "string", description: "Defaults to active tab." },
+        expression: { type: "string", required: true, description: "单个 JS 表达式，如 document.title。Single JS expression, e.g. document.title." },
+        tabId: { type: "string", description: "默认当前活动标签页。Defaults to the active tab." },
       },
       output: {
         schema: {

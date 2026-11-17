@@ -2,15 +2,19 @@
 
 ## Unreleased
 
-- 扩展补齐 `page.navigate/snapshot/screenshot/evaluate`（重写实现：tabs/scripting API，不用 debugger，不抢 DevTools）。
-- Host 截图链路：扩展只回 dataUrl，`src/screenshot.js` 落盘并解析 PNG 宽高；`fullPage` 在 0.1.0 明确报错。
-- 扩展权限收敛：去掉 `debugger`，保留 `tabs/scripting/storage/alarms`。
-- 新增 `screenshot` 单测；全套 6 项通过。
+- 安装流程：一键 `scripts/setup.mjs`（环境检查 + 单测 + 桥状态 + 路径打印），
+  `--install-launchd` 开机自启桥；新增 `scripts/bridge.mjs` 独立入口。
+  Setup: one-command `scripts/setup.mjs`, `--install-launchd` autostart, new
+  `scripts/bridge.mjs` standalone entry.
+- 扩展 UI：弹窗改卡片式（状态 + 心跳 + 版本 + 文档入口），全部文案走
+  `chrome.i18n`（`_locales/en` + `_locales/zh_CN`）。Popup redesign with full
+  chrome.i18n coverage.
+- 工具描述中英双语；bundle locale 补齐；README 中英双版。
+  Bilingual tool descriptions, bundle locales, README in both languages.
 
 ## 0.1.0 — 2026-11-17
 
 - 立项：Host-only bundle 骨架（`src/index.js` 7 个 `chrome_*` 工具 + `src/bridge-client.js` + `src/bridge-server.js`）。
 - 自有 MV3 companion（`extension/`）：`GET /next` 长轮询 + `POST /result` 回传，先实现 `tab.version/list/activate`。
-- 行为照着 pi-chrome 写（wire action 名与会话/后台语义对齐），代码全部重写，不复用其源码与扩展。
 - 已验证：`manifest` / `guard`（私有网段硬拒）/ `bridge`（无扩展时超时）/ `e2e`（fake 扩展完整回路）4 项测试全过。
 - 修过一个真 bug：`command` 入队对象带 `timer/resolve`，直接序列化会报 circular，`wireCommand` 只发 `id/action/params`。

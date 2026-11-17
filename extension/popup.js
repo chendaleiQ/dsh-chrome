@@ -1,31 +1,61 @@
-/* Popup: show bridge status, nudge the service worker to poll now. */
+/* Popup: bridge status + service-worker heartbeat + reconnect.
+ * All user-visible strings go through chrome.i18n (see _locales/).
+ */
 const BRIDGE = "http://127.0.0.1:17319";
+const DOCS_URL = "https://github.com/chendaleiQ/dsh-chrome#readme";
+const t = (key, ...args) => chrome.i18n.getMessage(key, args) || key;
 
 async function refresh() {
-  const el = document.getElementById("status");
+  document.title = t("statusTitle");
+  document.getElementById("title").textContent = t("statusTitle");
+  try {
+    document.getElementById("ver").textContent = `v${chrome.runtime.getManifest().version}`;
+  } catch { /* ignore */ }
+  const retry = document.getElementById("retry");
+  retry.textContent = t("connectNow");
+  retry.disabled = false;
+  document.getElementById("bridge").textContent = `${t("bridgeLabel")}: ${BRIDGE.replace(/^http:\/\//, "")}`;
+  const docs = document.getElementById("docs");
+  docs.textContent = t("openDocs");
+  docs.href = DOCS_URL;
+
   let hb = null;
   try {
     ({ swHeartbeat: hb = null } = await chrome.storage.local.get("swHeartbeat"));
   } catch { /* ignore */ }
-  const hbLine = hb
-    ? `\nSW 心跳: #${hb.polls} ${hb.state} (${Math.round((Date.now() - hb.at) / 1000)}s前, v${hb.version || "?"})`
-    : `\nSW 心跳: 无（service worker 还没跑过一次轮询）`;
+  const hbText = hb
+    ? t("statusHeartbeat", String(hb.polls), String(hb.state), String(Math.round((Date.now() - hb.at) / 1000)), String(hb.version || "?"))
+    : t("statusHeartbeatNone");
+
+  const statusEl = document.getElementById("status");
+  const detailEl = document.getElementById("detail");
   try {
     const res = await fetch(`${BRIDGE}/status`, { cache: "no-store" });
     const st = await res.json();
-    el.innerHTML = (st.connected
-      ? `<span class="ok">● 已连接</span>\nlastSeen: ${new Date(st.lastSeenAt).toLocaleTimeString()}\nclient: ${st.clientName || "(unknown)"}`
-      : `<span class="bad">○ 未连接</span>\n桥在线，扩展还没轮询到。点「立即连接」。`) + hbLine;
+    if (st.connected) {
+      statusEl.innerHTML = `<span class="ok">${escapeHtml(t("statusConnected"))}</span>`;
+      detailEl.textContent = `${t("lastSeen", new Date(st.lastSeenAt).toLocaleTimeString())} · ${t("clientLabel", st.clientName || "")}`;
+      retry.disabled = true;
+    } else {
+      statusEl.innerHTML = `<span class="bad">${escapeHtml(t("statusNotConnected"))}</span>`;
+      detailEl.textContent = t("statusBodyOnline");
+    }
   } catch (e) {
-    el.innerHTML = `<span class="bad">○ 桥没在跑</span>\n${String(e).slice(0, 120)}` + hbLine;
+    statusEl.innerHTML = `<span class="bad">${escapeHtml(t("statusBridgeDown"))}</span>`;
+    detailEl.textContent = String(e).slice(0, 120);
   }
+  document.getElementById("hb").textContent = hbText;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
 document.getElementById("retry").addEventListener("click", async () => {
   try {
     await chrome.runtime.sendMessage({ type: "poll-now" });
   } catch {
-    // service worker 尚未唤醒：popup 自身触发一次直连探测即可唤醒
+    // service worker 尚未唤醒：本次点击本身就是一次唤醒尝试
   }
   setTimeout(refresh, 1500);
 });

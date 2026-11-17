@@ -1,41 +1,74 @@
 # dsh-chrome
 
-DSH 用的本地 Chrome 操控插件：连你已经登录的那个 Chrome，能看标签页、抓快照、导航、截图、执行 JS 取值。
+DeepSeek Harness 用的本地 Chrome 操控插件：连你已经登录的那个 Chrome，能看标签页、抓快照、导航、截图、执行 JS 取值。
 
-行为对照 pi-chrome（MIT，`research/pi-chrome-upstream` 仅做行为参考，不打包不复制），代码与 companion 扩展全部重写，不依赖已安装的 pi 或 Pi Chrome Connector。
+> English version: [README.en.md](README.en.md)
 
-## 状态
+## 一分钟上手
 
-- [x] 立项：`package.json` / `cordis.patch.yml` / `src/` / `extension/` / `locale` / `test`
-- [x] 本地桥协议：`/status` / `/command` / `/next` / `/result` + fake 扩展端到端回路（`test/e2e.test.mjs`）
-- [x] 扩展 7 动作：`tab.version/list/activate` + `page.navigate/snapshot/screenshot/evaluate`（6 项测试全过）
-- [x] 真机联调：`tab.version` / `tab.list`（13 个真实标签）/ `page.evaluate` /
-  `page.snapshot`（27 节点）/ `page.screenshot`（3840×1916 落盘）全部只读打通
-- [x] `install_bundle` 装进 desktop profile（`application: applied`，零警告）
-- [ ] 新会话里跑 `chrome_status`（插件已就位，等一次人工确认）
-- [x] 开源到 GitHub：https://github.com/chendaleiQ/dsh-chrome
+```bash
+cd projects/dsh-chrome
+node scripts/setup.mjs          # 检查环境 + 单测 + 打印下面两步要填的路径
+```
+
+1. **装扩展**：`chrome://extensions` → 打开开发者模式 → 「加载已解压的扩展程序」→ 选择 `projects/dsh-chrome/extension/`。认准 **DSH Chrome Connector**。
+2. **起桥**（二选一）：
+   - 省事：`node scripts/setup.mjs --install-launchd` —— 开机自启，常驻后台；
+   - 或者什么都不做：DSH 插件加载时会自动把桥拉起来（端口被占就当 client 用）。
+3. **装进 DSH**：插件页 → Add plugin → 选择本目录（`projects/dsh-chrome`）。装完新开会话就有 9 个 `chrome_*` 工具。
+4. **验证**：`npm run verify`（等扩展上线，tab.version + tab.list 一把过）。
 
 ## 布局
 
 ```text
 projects/dsh-chrome/
   package.json          # @chendaleiq/dsh-chrome，Host-only bundle
-  cordis.patch.yml      # id/name/config（bridgePort 默认 17319，与 pi 的 17318 错开）
-  src/index.js          # apply(ctx, config)：注册 7 个 chrome_* tools
-  src/bridge-client.js  # 自有最小 wire 协议：GET /status，POST /command
-  extension/            # 自有 MV3 companion：manifest + service_worker（重写中）
+  cordis.patch.yml      # id/name/config（bridgePort 默认 17319，只听本机）
+  src/index.js          # apply(ctx, config)：defineTool 包装后注册 9 个工具
+  src/tools.js          # 工具定义（纯模块，可单测；defineTool 契约见注释）
+  src/bridge-client.js  # 最小 wire 协议客户端
+  src/bridge-server.js  # 本地桥：/status /command /next（25s 长轮询）/result
+  src/screenshot.js     # dataUrl 落盘 + PNG 宽高解析
+  src/auto-bridge.js    # 桥自启与端口占用降级
+  scripts/setup.mjs     # 一键安装检查（含 --install-launchd 开机自启）
+  scripts/bridge.mjs    # 桥独立入口（给 LaunchAgent 用）
+  scripts/verify.mjs    # 一键真机验证
+  extension/            # 自有 MV3 companion：manifest + service worker + popup
+  extension/_locales/   # 扩展界面中英双语（en + zh_CN）
   locale/en.json zh.json
-  docs/DETAIL.md
+  docs/DETAIL.md docs/TESTING.md
   test/*.test.mjs
 ```
 
+## 工具（9 个）
+
+| 工具 | 要审批 | 说明 |
+|---|---|---|
+| `chrome_status` | 否 | 桥连通性；别的工具出错先调它 |
+| `chrome_tabs_list` | 否 | 标签页列表（有界） |
+| `chrome_snapshot` | 否 | 无障碍快照，阅读优先用它而不是截图 |
+| `chrome_screenshot` | 否 | 只回文件 path，不回 base64 |
+| `chrome_tab_select` | 是 | 按 id 激活标签页 |
+| `chrome_tab_new` | 是 | 后台开新标签页，记为自有 |
+| `chrome_tab_close` | 是 | 按 id 关闭标签页 |
+| `chrome_navigate` | 是 | 导航；私有网段/非 http(s) 直接硬拒 |
+| `chrome_evaluate` | 是 | 页面内只读取值，超长截断 |
+
+输出全部有界：快照/求值截断，截图只给 path。桥只听 `127.0.0.1`，不对外暴露。
+
 ## 安全
 
-- 只读（status/tabs/snapshot/screenshot）默认放行，写操作（navigate/tab_select/evaluate）走 DSH 审批。
-- `navigate` 对私有网段与非 http(s) 直接硬拒。
-- 输出全部有界：快照/求值截断，截图只回 path 不回 base64。
-- 桥只听 `127.0.0.1`，不对外暴露。
+- 只读默认放行，写操作走 DSH 审批；`navigate` 对 `localhost`/内网段/非 http(s) 同步硬拒。
+- 扩展权限收敛到 `tabs/scripting/storage/alarms`，无 `debugger`（不跟 DevTools 抢）。
+- 截图与审计落盘默认 `~/.dsh/chrome/<session>/`。
+
+## 状态
+
+- [x] 本地桥协议 + fake 扩展端到端回路
+- [x] 真机验证：tab.version / tab.list（13 标签）/ evaluate / snapshot（27 节点）/ screenshot 落盘
+- [x] `install_bundle` 进 desktop profile（`application: applied`，零警告）
+- [x] 开源：https://github.com/chendaleiQ/dsh-chrome
 
 ## 开源
 
-MIT，见 [LICENSE](LICENSE)。 shipping 时 `files` 白名单见 `package.json`，`research/pi-chrome-upstream` 不在包里。
+MIT，见 [LICENSE](LICENSE)。`files` 白名单见 `package.json`。

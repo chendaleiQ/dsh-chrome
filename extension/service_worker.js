@@ -1,5 +1,5 @@
-/* DSH Chrome Connector — service worker (fresh implementation, no pi-chrome code).
- * Polls GET /next (25s long-poll), executes tab/debugger actions,
+/* DSH Chrome Connector — service worker.
+ * Polls GET /next (25s long-poll), executes tab/page actions,
  * POSTs back to /result. Matches projects/dsh-chrome/src/bridge-server.js.
  *
  * Wire actions implemented:

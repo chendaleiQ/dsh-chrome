@@ -1,0 +1,31 @@
+{
+  "appName": { "message": "DSH Chrome Connector" },
+  "appDesc": { "message": "轮询本地 DSH 桥，接管你已登录的 Chrome。" },
+  "statusTitle": { "message": "DSH Chrome Connector" },
+  "statusChecking": { "message": "检查中…" },
+  "statusConnected": { "message": "● 已连接" },
+  "statusNotConnected": { "message": "○ 未连接" },
+  "statusBridgeDown": { "message": "○ 桥没在跑" },
+  "statusBodyOnline": {
+    "message": "桥在线，扩展还没轮询到。点「立即连接」。",
+    "description": "桥通但无轮询时显示"
+  },
+  "statusHeartbeat": {
+    "message": "SW 心跳：#$1$ $2$（$3$ 秒前，v$4$）",
+    "description": "Service Worker 存活：次数、状态、时长、版本"
+  },
+  "statusHeartbeatNone": {
+    "message": "SW 心跳：无（service worker 还没跑过一次轮询）"
+  },
+  "connectNow": { "message": "立即连接" },
+  "lastSeen": {
+    "message": "lastSeen：$1$",
+    "description": "上次轮询时间"
+  },
+  "clientLabel": {
+    "message": "client：$1$",
+    "description": "连接的客户端名"
+  },
+  "bridgeLabel": { "message": "桥" },
+  "openDocs": { "message": "使用文档" }
+}

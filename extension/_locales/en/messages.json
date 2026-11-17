@@ -1,0 +1,31 @@
+{
+  "appName": { "message": "DSH Chrome Connector" },
+  "appDesc": { "message": "Poll the local DSH bridge and drive the signed-in Chrome profile." },
+  "statusTitle": { "message": "DSH Chrome Connector" },
+  "statusChecking": { "message": "checking…" },
+  "statusConnected": { "message": "● Connected" },
+  "statusNotConnected": { "message": "○ Not connected" },
+  "statusBridgeDown": { "message": "○ Bridge is not running" },
+  "statusBodyOnline": {
+    "message": "Bridge is up, but the extension has not polled yet. Click “Connect now”.",
+    "description": "Shown when the bridge answers but no poll arrived"
+  },
+  "statusHeartbeat": {
+    "message": "SW heartbeat: #$1$ $2$ ($3$s ago, v$4$)",
+    "description": "Service-worker liveness: poll count, state, age, version"
+  },
+  "statusHeartbeatNone": {
+    "message": "SW heartbeat: none (the service worker has never polled)"
+  },
+  "connectNow": { "message": "Connect now" },
+  "lastSeen": {
+    "message": "lastSeen: $1$",
+    "description": "Last poll timestamp"
+  },
+  "clientLabel": {
+    "message": "client: $1$",
+    "description": "Connected client name"
+  },
+  "bridgeLabel": { "message": "Bridge" },
+  "openDocs": { "message": "Docs" }
+}

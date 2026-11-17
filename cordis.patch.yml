@@ -2,8 +2,6 @@
 #
 # Host-only：src/index.js 的 apply(ctx, config) 注册 chrome_* tools，
 # 走自有本地桥（默认 127.0.0.1:17319）连自有 companion 扩展。
-# 行为对照 pi-chrome（MIT，研究库见 research/pi-chrome-upstream，不打包），
-# 代码全部重写，不复用其源码与已装扩展。
 #
 # loader 行 id、package 名、src/index.js 里 export const name 三者必须一致。
 - insert:
@@ -11,7 +9,7 @@
       name: '@chendaleiq/dsh-chrome'
       config:
         enabled: true
-        # 本地桥监听地址；默认 127.0.0.1:17319（与 pi-chrome 的 17318 错开，避免冲突）
+        # 本地桥监听地址；默认 127.0.0.1:17319（回环专用端口）
         bridgePort: 17319
         bridgeHost: '127.0.0.1'
         # 只读默认放行，写操作默认问；与 DSH approval/sandbox 叠加，不替代
