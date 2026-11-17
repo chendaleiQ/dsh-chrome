@@ -23,6 +23,9 @@ curl -s http://127.0.0.1:17319/status
 
 - `connected:false, lastSeenAt:0` = 扩展一次都没来过 → 点工具栏图标 → 「立即连接」。
 - `connected:true` = 通了，继续第 3 步。
+  - 注意：`connected` 是 5 分钟心跳窗口，可能是残留假阳性；
+    真正的证明是第 3 步 `tab.version` 能回来（`verify.mjs` 就是这么判的，
+    只看 `connected` 不算数，要看命令往返）。
 
 ## 3. 只读验证（不碰页面）
 
