@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 — 2026-11-17
+
+- 上架准备：`package.json` 新增 `dsh.catalog`（tool 类目 + 中英 summary），README 中英双语补齐 `dsh plugin --profile web add @chendaleiq/dsh-chrome` 一键安装命令。
+  Market readiness: `dsh.catalog` metadata + copyable `dsh plugin --profile web add` install command in both READMEs.
+- GitHub 仓库补齐 `dsh-plugin` 等 8 个 topics、描述与 npm 主页，三大自动发现市场（dsh-plugin.org / awesome-dsh-plugin / dsh-plugin-shop）开始收录。
+
 ## 0.1.1 — 2026-11-17
 
 - 新增 `chrome_fill`：CSP 安全的表单填写（静态注入函数，无 eval），discover 先拿选择器。

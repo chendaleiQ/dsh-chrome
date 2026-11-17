@@ -80,7 +80,8 @@ MIT，见 [LICENSE](LICENSE)。`files` 白名单见 `package.json`。
 
 | 渠道 | 状态 | 怎么装 |
 |---|---|---|
-| npm `@chendaleiq/dsh-chrome` | ✅ 已发布（GitHub Actions 自动发版） | `npm i @chendaleiq/dsh-chrome` |
+| npm `@chendaleiq/dsh-chrome` | ✅ 已发布（GitHub Actions 自动发版） | `dsh plugin --profile web add @chendaleiq/dsh-chrome`（把 `web` 换成你的 profile 名；`npm i @chendaleiq/dsh-chrome` 也可） |
 | GitHub release（含 tarball） | ✅ 已发布 | `dsh plugin add github:chendaleiQ/dsh-chrome` |
 | DSH 发现页索引 | 就绪 | 设置 → 插件 → 发现页，加 `market/index.json` 的 raw URL（见 [market/README.md](market/README.md)） |
 | 本地目录 | 一直可用 | 插件页 → Add plugin → 选本目录 |
+| 第三方大市场 | 见下 | dsh-plugin.org（加 `dsh-plugin` topic 自动收录） · awesome-dsh-plugin（同 topic 每日抓取） · dsh-plugin-shop（npm 关键词自动收录） |

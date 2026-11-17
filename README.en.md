@@ -92,7 +92,8 @@ MIT, see [LICENSE](LICENSE). Shipped files are whitelisted in `package.json`.
 
 | Channel | Status | How |
 |---|---|---|
-| npm `@chendaleiq/dsh-chrome` | ✅ Published (auto-released by GitHub Actions) | `npm i @chendaleiq/dsh-chrome` |
+| npm `@chendaleiq/dsh-chrome` | ✅ Published (auto-released by GitHub Actions) | `dsh plugin --profile web add @chendaleiq/dsh-chrome` (replace `web` with your profile; `npm i @chendaleiq/dsh-chrome` also works) |
 | GitHub release (with tarball) | ✅ Published | `dsh plugin add github:chendaleiQ/dsh-chrome` |
 | DSH Discover index | Ready | Settings → Plugins → Discover, add the raw URL of `market/index.json` (see [market/README.md](market/README.md)) |
 | Local directory | Always works | Plugins → Add plugin → pick this directory |
+| Third-party markets | See below | dsh-plugin.org (`dsh-plugin` topic auto-indexed) · awesome-dsh-plugin (same topic, daily crawl) · dsh-plugin-shop (npm keyword auto-indexed) |

@@ -1,6 +1,6 @@
 {
   "name": "@chendaleiq/dsh-chrome",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "Control local Chrome from DSH: status, tabs, snapshot, navigate, screenshot, evaluate.",
   "license": "MIT",
@@ -28,6 +28,14 @@
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "catalog": {
+      "category": "tool",
+      "summary": {
+        "en": "Control local Chrome from DSH: tabs, snapshot, navigate, screenshot, fill and evaluate.",
+        "zh": "在 DSH 里操控本地 Chrome：标签页、快照、导航、截图、填表与取值。"
+      },
+      "capabilities": ["tools"]
     }
   },
   "icon": "./icon.svg",
