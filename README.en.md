@@ -72,8 +72,9 @@ The bridge listens on `127.0.0.1` only.
 
 - Reads are auto-approved; writes go through DSH approval. `navigate` hard-rejects
   `localhost`/private ranges/non-http(s).
-- Extension permissions kept minimal: `tabs/scripting/storage/alarms`, no
-  `debugger` (never fights DevTools).
+- Extension permissions: `tabs/scripting/storage/alarms` plus `debugger` for
+  screenshots only (a debug banner shows during capture; mutually exclusive
+  with DevTools).
 - Screenshots/audit land in `~/.dsh/chrome/<session>/` by default.
 
 ## Status

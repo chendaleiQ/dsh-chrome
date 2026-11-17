@@ -68,6 +68,7 @@ test("extension: tab.new/tab.close dispatch through a scripted bridge", async ()
     { type: "command", command: { id: "c1", action: "tab.new", params: { url: "https://example.com/" } } },
     { type: "command", command: { id: "c2", action: "tab.close", params: { tabId: "42" } } },
     { type: "command", command: { id: "c3", action: "page.fill", params: { mode: "discover" } } },
+    { type: "command", command: { id: "c4", action: "page.screenshot", params: {} } },
   ];
   const results = {};
   const sandbox = {
@@ -101,6 +102,11 @@ test("extension: tab.new/tab.close dispatch through a scripted bridge", async ()
         create: async (opts) => ({ id: 42, title: "", url: opts.url }),
         remove: async (id) => { removed.push(id); },
       },
+      debugger: {
+        attach: async () => {},
+        sendCommand: async () => ({ data: "AAAA" }),
+        detach: async () => {},
+      },
       scripting: { executeScript: async () => [{ result: [] }] },
       storage: {
         local: {
@@ -113,12 +119,15 @@ test("extension: tab.new/tab.close dispatch through a scripted bridge", async ()
   vm.createContext(sandbox);
   vm.runInContext(code, sandbox, { filename: "service_worker.js" });
   const tick = () => new Promise((r) => setTimeout(r, 20));
-  for (let i = 0; i < 30 && (!results.c1 || !results.c2 || !results.c3); i++) await tick();
+  for (let i = 0; i < 30 && (!results.c1 || !results.c2 || !results.c3 || !results.c4); i++) await tick();
   assert.equal(results.c1?.ok, true);
   assert.equal(results.c1?.result?.id, "42");
   assert.deepEqual(removed, [42]);
   assert.equal(results.c2?.ok, true);
   assert.equal(results.c3?.ok, true);
+  // debugger 后台截图：dataUrl 由 CDP 返回拼出来
+  assert.equal(results.c4?.ok, true);
+  assert.equal(results.c4?.result?.dataUrl, "data:image/png;base64,AAAA");
   // store.ownedTabs 是 vm 上下文里建的数组（原型不同），按值比。
   assert.equal(JSON.stringify(store.ownedTabs), "[]");
 });

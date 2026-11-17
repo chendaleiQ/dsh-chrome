@@ -92,6 +92,30 @@ async function forgetOwnedTab(id) {
   await chrome.storage.local.set({ ownedTabs: ownedTabs.filter((t) => t !== String(id)) });
 }
 
+function dbgTarget(id) {
+  return { tabId: id };
+}
+
+async function attachDebugger(id) {
+  try {
+    await chrome.debugger.attach(dbgTarget(id), "1.3");
+  } catch (e) {
+    throw new Error("debugger attach failed (DevTools may be open on this tab): " + ((e && e.message) || e));
+  }
+}
+
+function sendDebugger(id, method, params) {
+  return chrome.debugger.sendCommand(dbgTarget(id), method, params);
+}
+
+async function detachDebugger(id) {
+  try {
+    await chrome.debugger.detach(dbgTarget(id));
+  } catch {
+    // 已经掉了就不用管
+  }
+}
+
 async function resolveTabId(params) {
   if (params.tabId !== undefined && params.tabId !== null && params.tabId !== "") {
     const id = Number(params.tabId);
@@ -151,10 +175,16 @@ async function handleAction(action, params) {
       return { snapshot: lines.join("\n"), refId, truncated: Array.isArray(result) ? result.length - nodes.length : 0 };
     }
     case "page.screenshot": {
+      // 后台可截：debugger 挂到指定 tab 上直接抓 compositor 合成图，
+      // 不需要把 tab 切到前台。代价：抓的那一下有调试横条，且与 DevTools 互斥。
       const id = await resolveTabId(params);
-      const windowId = (await chrome.tabs.get(id)).windowId;
-      const dataUrl = await chrome.tabs.captureVisibleTab(windowId, { format: "png" });
-      return { dataUrl, fullPage: false, tabId: String(id) };
+      await attachDebugger(id);
+      try {
+        const { data } = await sendDebugger(id, "Page.captureScreenshot", { format: "png", fromSurface: true });
+        return { dataUrl: "data:image/png;base64," + data, fullPage: false, tabId: String(id) };
+      } finally {
+        await detachDebugger(id);
+      }
     }
     case "page.fill": {
       const id = await resolveTabId(params);

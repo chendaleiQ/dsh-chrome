@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "default_locale": "en",
   "description": "__MSG_appDesc__",
-  "permissions": ["tabs", "scripting", "storage", "alarms"],
+  "permissions": ["tabs", "scripting", "storage", "alarms", "debugger"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "service_worker.js"

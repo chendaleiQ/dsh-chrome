@@ -62,7 +62,8 @@ projects/dsh-chrome/
 ## 安全
 
 - 只读默认放行，写操作走 DSH 审批；`navigate` 对 `localhost`/内网段/非 http(s) 同步硬拒。
-- 扩展权限收敛到 `tabs/scripting/storage/alarms`，无 `debugger`（不跟 DevTools 抢）。
+- 扩展权限：`tabs/scripting/storage/alarms` + 截图专用的 `debugger`
+ （抓的那一下有调试横条，且与 DevTools 互斥；读快照/填表都不走它）。
 - 截图与审计落盘默认 `~/.dsh/chrome/<session>/`。
 
 ## 状态
