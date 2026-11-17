@@ -1,0 +1,26 @@
+name: publish
+
+# 打 tag 即发版：git tag vX.Y.Z && git push origin vX.Y.Z
+# 首次发布必须手动（npm 要求包先存在才能配 trusted publisher），
+# 之后所有版本走这里，免 token、自动带 provenance。
+# Tagging a release publishes to npm via OIDC trusted publishing (no tokens).
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: node --test "test/*.test.mjs" 2>&1 | tail -n 8
+      - run: npm publish --provenance --access public

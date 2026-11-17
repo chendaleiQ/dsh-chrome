@@ -13,7 +13,9 @@ https://raw.githubusercontent.com/chendaleiQ/dsh-chrome/main/market/index.json
 ## 发新版时 / Releasing a new version
 
 1. 改 `package.json` 的 `version`，更新 `CHANGELOG.md`，提交并推送。
-2. 打 tag 并推 tag：`git tag vX.Y.Z && git push origin main --tags`。
+2. 打 tag 并推 tag：`git tag vX.Y.Z && git push origin vX.Y.Z`。
+   GitHub Action（`.github/workflows/publish.yml`，OIDC trusted publishing）
+   会自动跑单测并发到 npm（首次发布需手动一次，见下）。
 3. GitHub release（会顺手产出 tarball）：`gh release create vX.Y.Z --notes "..."`。
 4. 在 `market/index.json` 的 `versions` 数组**最前面**加一条：
    `version` = 新版本号，`publishTimestamp` = `date +%s`，
