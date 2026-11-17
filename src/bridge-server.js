@@ -200,7 +200,22 @@ export function createBridge({ host = "127.0.0.1", port = 17319 } = {}) {
   return {
     server,
     status,
-    listen: () => new Promise((resolve) => server.listen(port, host, resolve)),
+    listen: () =>
+      new Promise((resolve, reject) => {
+        // EADDRINUSE 是异步 'error' 事件：没人听就变未捕获异常。
+        // 必须接住，调用方（apply 的 client 降级）才有机会活。
+        const onError = (err) => {
+          server.off("listening", onListen);
+          reject(err);
+        };
+        const onListen = () => {
+          server.off("error", onError);
+          resolve();
+        };
+        server.once("error", onError);
+        server.once("listening", onListen);
+        server.listen(port, host);
+      }),
     close: () => new Promise((resolve) => server.close(resolve)),
   };
 }
