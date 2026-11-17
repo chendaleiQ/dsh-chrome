@@ -26,6 +26,15 @@ curl -s http://127.0.0.1:17319/status
 
 ## 3. 只读验证（不碰页面）
 
+一键跑（等扩展 120 秒，超时退出码 2）：
+
+```bash
+node scripts/verify.mjs
+node scripts/verify.mjs --snapshot   # 加抓一次当前页快照
+```
+
+手动版：
+
 ```bash
 # 握手：应返回 { extensionVersion, bridge, userAgent }
 curl -s -X POST http://127.0.0.1:17319/command \
