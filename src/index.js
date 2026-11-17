@@ -16,7 +16,7 @@ import { buildTools, compileToolDefinition } from "./tools.js";
 
 export const name = "@chendaleiq/dsh-chrome";
 
-export const inject = ["tools", "systemPrompt"];
+export const inject = ["tools"];
 
 const DEFAULTS = {
   enabled: true,
@@ -72,14 +72,8 @@ export function apply(ctx, rawConfig) {
       exec?.signal,
     );
 
-  if (ctx?.systemPrompt?.section) {
-    disposers.push(
-      ctx.systemPrompt.section({
-        name: "tool:chrome",
-        text: "Use chrome_snapshot before chrome_screenshot for reading pages. chrome_evaluate is read-only and truncated; navigation and tab changes need approval unless the user already allowed them.",
-      }),
-    );
-  }
+  // 工具使用指引直接写在各工具 description 里，不另起 prompt section
+  //（section 需要宿主排序号，硬编码 order 会乱插队）。
 
   for (const def of buildTools({
     send,
