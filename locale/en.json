@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Chrome control",
+    "description": "Read tabs, snapshot page structure, navigate, screenshot, and evaluate JS in local Chrome.",
+    "detail": "docs/DETAIL.md"
+  }
+}
