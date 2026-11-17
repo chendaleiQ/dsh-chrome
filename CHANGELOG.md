@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.3 — 2026-11-17
+
+- 截图改为 debugger 后台直抓（不用切前台）；文档收紧：扩展权限如实写 `debugger`（仅截图，抓时有横条、与 DevTools 互斥）。
+  Screenshot via debugger-backed background capture; docs tightened to describe `debugger` honestly.
+- 修正工具数口径：10 → 11（`chrome_fill` + `chrome_onboard` 后）；`extension/manifest.json` 版本同步到包版本。
+  Tool count corrected 10 → 11; extension manifest version synced.
+
 ## 0.1.2 — 2026-11-17
 
 - 上架准备：`package.json` 新增 `dsh.catalog`（tool 类目 + 中英 summary），README 中英双语补齐 `dsh plugin --profile web add @chendaleiq/dsh-chrome` 一键安装命令。

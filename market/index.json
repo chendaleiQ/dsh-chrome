@@ -5,8 +5,8 @@
     "zh": "dsh-chrome 发布频道"
   },
   "description": {
-    "en": "Local Chrome control for DeepSeek Harness: signed-in profile, loopback bridge, 10 chrome_* tools.",
-    "zh": "DeepSeek Harness 本地 Chrome 操控：已登录 profile、回环桥、10 个 chrome_* 工具。"
+    "en": "Local Chrome control for DeepSeek Harness: signed-in profile, loopback bridge, 11 chrome_* tools.",
+    "zh": "DeepSeek Harness 本地 Chrome 操控：已登录 profile、回环桥、11 个 chrome_* 工具。"
   },
   "metadata": {
     "categories": {

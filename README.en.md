@@ -23,7 +23,7 @@ node scripts/setup.mjs          # env checks + tests + prints the paths below
    - Or do nothing: the DSH plugin starts the bridge on load (falls back to
      client mode if the port is taken).
 3. **Install into DSH**: Plugins → Add plugin → pick this directory
-   (`projects/dsh-chrome`). New sessions get 10 `chrome_*` tools.
+   (`projects/dsh-chrome`). New sessions get 11 `chrome_*` tools.
 4. **Verify**: `npm run verify` (waits for the extension, then tab.version +
    tab.list in one go).
 

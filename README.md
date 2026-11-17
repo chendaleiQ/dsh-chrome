@@ -16,7 +16,7 @@ node scripts/setup.mjs          # 检查环境 + 单测 + 打印下面两步要�
 2. **起桥**（二选一）：
    - 省事：`node scripts/setup.mjs --install-launchd` —— 开机自启，常驻后台；
    - 或者什么都不做：DSH 插件加载时会自动把桥拉起来（端口被占就当 client 用）。
-3. **装进 DSH**：插件页 → Add plugin → 选择本目录（`projects/dsh-chrome`）。装完新开会话就有 10 个 `chrome_*` 工具。
+3. **装进 DSH**：插件页 → Add plugin → 选择本目录（`projects/dsh-chrome`）。装完新开会话就有 11 个 `chrome_*` 工具。
 4. **验证**：`npm run verify`（等扩展上线，tab.version + tab.list 一把过）。
 
 ## 布局
