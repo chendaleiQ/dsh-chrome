@@ -34,9 +34,17 @@ export async function bridgeStatus(baseUrl, timeoutMs = 3000) {
 
 let seq = 0;
 
-export async function bridgeSend(baseUrl, action, params = {}, timeoutMs = 30000) {
+export async function bridgeSend(baseUrl, action, params = {}, timeoutMs = 30000, parentSignal) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  const onParentAbort = () => ctrl.abort();
+  if (parentSignal) {
+    if (parentSignal.aborted) {
+      clearTimeout(timer);
+      throw new Error(`bridge ${action} aborted before send`);
+    }
+    parentSignal.addEventListener("abort", onParentAbort, { once: true });
+  }
   try {
     const res = await fetch(`${baseUrl}/command`, {
       method: "POST",
@@ -51,5 +59,6 @@ export async function bridgeSend(baseUrl, action, params = {}, timeoutMs = 30000
     return body.result;
   } finally {
     clearTimeout(timer);
+    if (parentSignal) parentSignal.removeEventListener("abort", onParentAbort);
   }
 }
