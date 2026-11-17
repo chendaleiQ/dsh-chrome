@@ -14,7 +14,7 @@ test("manifest: bundle wiring is consistent", () => {
   assert.match(patch, /id: dsh-chrome/);
   assert.match(patch, /name: '@chendaleiq\/dsh-chrome'/);
   assert.ok((pkg.exports["./locale/*.json"]) && pkg.exports["./icon"]);
-  for (const f of ["src/index.js", "src/bridge-client.js", "src/bridge-server.js", "cordis.patch.yml", "docs/DETAIL.md", "icon.svg", "README.md", "LICENSE", "CHANGELOG.md"]) {
+  for (const f of ["src/index.js", "src/bridge-client.js", "src/bridge-server.js", "src/screenshot.js", "extension/manifest.json", "extension/service_worker.js", "extension/popup.html", "extension/popup.js", "cordis.patch.yml", "docs/DETAIL.md", "icon.svg", "README.md", "LICENSE", "CHANGELOG.md"]) {
     assert.ok(existsSync(join(root, f)), `missing ${f}`);
   }
   const icon = statSync(join(root, "icon.svg"));

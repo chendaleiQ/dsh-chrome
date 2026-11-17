@@ -152,6 +152,9 @@ chrome.runtime.onInstalled.addListener(() => {
   pollOnce();
 });
 chrome.runtime.onStartup.addListener(() => pollOnce());
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg && msg.type === "poll-now") pollOnce();
+});
 chrome.alarms.onAlarm.addListener(() => pollOnce());
 setInterval(pollOnce, 1000);
 pollOnce();

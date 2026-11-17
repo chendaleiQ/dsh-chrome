@@ -13,6 +13,7 @@
   },
   "files": [
     "src/**/*.js",
+    "extension/**/*",
     "cordis.patch.yml",
     "locale/*.json",
     "docs/DETAIL.md",
