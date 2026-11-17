@@ -10,6 +10,7 @@
  */
 
 import { bridgeSend, bridgeStatus, bridgeUrlOf } from "./bridge-client.js";
+import { saveScreenshot } from "./screenshot.js";
 
 export const name = "@chendaleiq/dsh-chrome";
 
@@ -188,7 +189,11 @@ export function apply(ctx, rawConfig) {
         additionalProperties: false,
       },
     },
-    async (args = {}) => send("page.screenshot", { tabId: args.tabId, fullPage: args.fullPage === true }),
+    async (args = {}) => {
+      if (args.fullPage === true) throw new Error("fullPage is not supported in 0.1.0 (viewport only)");
+      const shot = await send("page.screenshot", { tabId: args.tabId });
+      return saveScreenshot(config.dataDir, SESSION_KEY, shot?.dataUrl);
+    },
   );
 
   // ---- 最高危：页面内取值（默认禁出网，超长截断） ----

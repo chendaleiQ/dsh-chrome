@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- 扩展补齐 `page.navigate/snapshot/screenshot/evaluate`（重写实现：tabs/scripting API，不用 debugger，不抢 DevTools）。
+- Host 截图链路：扩展只回 dataUrl，`src/screenshot.js` 落盘并解析 PNG 宽高；`fullPage` 在 0.1.0 明确报错。
+- 扩展权限收敛：去掉 `debugger`，保留 `tabs/scripting/storage/alarms`。
+- 新增 `screenshot` 单测；全套 6 项通过。
+
 ## 0.1.0 — 2026-11-17
 
 - 立项：Host-only bundle 骨架（`src/index.js` 7 个 `chrome_*` 工具 + `src/bridge-client.js` + `src/bridge-server.js`）。

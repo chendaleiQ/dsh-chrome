@@ -3,7 +3,7 @@
   "name": "DSH Chrome Connector",
   "version": "0.1.0",
   "description": "Poll the local DSH bridge and drive the signed-in Chrome profile via debugger. Fresh implementation, no pi-chrome code.",
-  "permissions": ["tabs", "debugger", "scripting", "storage"],
+  "permissions": ["tabs", "tabGroups", "scripting", "storage", "alarms"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "service_worker.js"
