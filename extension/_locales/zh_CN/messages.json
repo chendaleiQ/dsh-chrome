@@ -11,20 +11,32 @@
     "description": "桥通但无轮询时显示"
   },
   "statusHeartbeat": {
-    "message": "SW 心跳：#$1$ $2$（$3$ 秒前，v$4$）",
-    "description": "Service Worker 存活：次数、状态、时长、版本"
+    "message": "SW 心跳：#$p1$ $p2$（$p3$秒前，v$p4$）",
+    "description": "Service Worker 存活：次数、状态、时长、版本",
+    "placeholders": {
+      "p1": { "content": "$1" },
+      "p2": { "content": "$2" },
+      "p3": { "content": "$3" },
+      "p4": { "content": "$4" }
+    }
   },
   "statusHeartbeatNone": {
     "message": "SW 心跳：无（service worker 还没跑过一次轮询）"
   },
   "connectNow": { "message": "立即连接" },
   "lastSeen": {
-    "message": "lastSeen：$1$",
-    "description": "上次轮询时间"
+    "message": "lastSeen：$p1$",
+    "description": "上次轮询时间",
+    "placeholders": {
+      "p1": { "content": "$1" }
+    }
   },
   "clientLabel": {
-    "message": "client：$1$",
-    "description": "连接的客户端名"
+    "message": "client：$p1$",
+    "description": "连接的客户端名",
+    "placeholders": {
+      "p1": { "content": "$1" }
+    }
   },
   "bridgeLabel": { "message": "桥" },
   "openDocs": { "message": "使用文档" }

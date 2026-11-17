@@ -11,20 +11,32 @@
     "description": "Shown when the bridge answers but no poll arrived"
   },
   "statusHeartbeat": {
-    "message": "SW heartbeat: #$1$ $2$ ($3$s ago, v$4$)",
-    "description": "Service-worker liveness: poll count, state, age, version"
+    "message": "SW heartbeat: #$p1$ $p2$ ($p3$s ago, v$p4$)",
+    "description": "Service-worker liveness: poll count, state, age, version",
+    "placeholders": {
+      "p1": { "content": "$1" },
+      "p2": { "content": "$2" },
+      "p3": { "content": "$3" },
+      "p4": { "content": "$4" }
+    }
   },
   "statusHeartbeatNone": {
     "message": "SW heartbeat: none (the service worker has never polled)"
   },
   "connectNow": { "message": "Connect now" },
   "lastSeen": {
-    "message": "lastSeen: $1$",
-    "description": "Last poll timestamp"
+    "message": "lastSeen: $p1$",
+    "description": "Last poll timestamp",
+    "placeholders": {
+      "p1": { "content": "$1" }
+    }
   },
   "clientLabel": {
-    "message": "client: $1$",
-    "description": "Connected client name"
+    "message": "client: $p1$",
+    "description": "Connected client name",
+    "placeholders": {
+      "p1": { "content": "$1" }
+    }
   },
   "bridgeLabel": { "message": "Bridge" },
   "openDocs": { "message": "Docs" }
