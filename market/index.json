@@ -1,0 +1,57 @@
+{
+  "format": 1,
+  "title": {
+    "en": "dsh-chrome channel",
+    "zh": "dsh-chrome 发布频道"
+  },
+  "description": {
+    "en": "Local Chrome control for DeepSeek Harness: signed-in profile, loopback bridge, 10 chrome_* tools.",
+    "zh": "DeepSeek Harness 本地 Chrome 操控：已登录 profile、回环桥、10 个 chrome_* 工具。"
+  },
+  "metadata": {
+    "categories": {
+      "browser": {
+        "title": { "en": "Browser", "zh": "浏览器" }
+      }
+    },
+    "labels": {},
+    "sortKeys": {}
+  },
+  "plugins": [
+    {
+      "name": "@chendaleiq/dsh-chrome",
+      "title": {
+        "en": "Chrome control",
+        "zh": "Chrome 操控"
+      },
+      "description": {
+        "en": "Read tabs, snapshot pages, navigate, screenshot, evaluate JS in local Chrome. Bonded output, approval for writes.",
+        "zh": "读取标签页、抓取页面快照、导航、截图、在本地 Chrome 里执行 JS 取值。有界输出，写操作走审批。"
+      },
+      "author": "chendaleiQ",
+      "homepage": "https://github.com/chendaleiQ/dsh-chrome#readme",
+      "repository": {
+        "url": "https://github.com/chendaleiQ/dsh-chrome"
+      },
+      "icon": "https://raw.githubusercontent.com/chendaleiQ/dsh-chrome/main/icon.svg",
+      "metadata": {
+        "category": "browser",
+        "keywords": ["dsh", "dsh-plugin", "deepseek-harness", "chrome", "browser", "local-first", "macos"],
+        "labels": [],
+        "sortKeys": {}
+      },
+      "versions": [
+        {
+          "version": "0.1.0",
+          "publishTimestamp": 1794902607,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/chendaleiQ/dsh-chrome.git",
+            "commit": "3d7b68ded827006b9bf2ad01765c5b554faf50a6"
+          },
+          "engines": {}
+        }
+      ]
+    }
+  ]
+}

@@ -74,3 +74,12 @@ projects/dsh-chrome/
 ## 开源
 
 MIT，见 [LICENSE](LICENSE)。`files` 白名单见 `package.json`。
+
+## 获取渠道 / Distribution
+
+| 渠道 | 状态 | 怎么装 |
+|---|---|---|
+| npm `@chendaleiq/dsh-chrome` | 待发布（本机登录过期，等一次 `npm login`） | `npm i @chendaleiq/dsh-chrome`（发布后） |
+| GitHub release（含 tarball） | v0.1.0 已打 tag，release 页待点发布 | `dsh plugin add github:chendaleiQ/dsh-chrome` |
+| DSH 发现页索引 | 就绪 | 设置 → 插件 → 发现页，加 `market/index.json` 的 raw URL（见 [market/README.md](market/README.md)） |
+| 本地目录 | 一直可用 | 插件页 → Add plugin → 选本目录 |
