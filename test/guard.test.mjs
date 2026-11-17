@@ -25,7 +25,7 @@ test("guard: private navigation is hard-denied without touching the bridge", asy
       await assert.rejects(() => nav.run({ url }), /navigation blocked/);
     }
     const names = [...ctx.collected.keys()].sort();
-    assert.deepEqual(names, ["chrome_evaluate", "chrome_navigate", "chrome_screenshot", "chrome_snapshot", "chrome_status", "chrome_tab_select", "chrome_tabs_list"]);
+    assert.deepEqual(names, ["chrome_evaluate", "chrome_navigate", "chrome_screenshot", "chrome_snapshot", "chrome_status", "chrome_tab_close", "chrome_tab_new", "chrome_tab_select", "chrome_tabs_list"]);
   } finally {
     cleanup();
   }

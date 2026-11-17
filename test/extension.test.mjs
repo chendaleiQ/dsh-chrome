@@ -50,3 +50,61 @@ test("extension: service worker module evaluates and polls without throwing", as
   await tick();
   assert.equal(polls, 4, "poll-now pollOnce");
 });
+
+test("extension: tab.new/tab.close dispatch through a scripted bridge", async () => {
+  const store = {};
+  const removed = [];
+  const script = [
+    { type: "command", command: { id: "c1", action: "tab.new", params: { url: "https://example.com/" } } },
+    { type: "command", command: { id: "c2", action: "tab.close", params: { tabId: "42" } } },
+  ];
+  const results = {};
+  const sandbox = {
+    console,
+    setInterval: () => 0,
+    setTimeout: () => 0,
+    clearTimeout: () => {},
+    fetch: async (url, opts = {}) => {
+      if (String(url).includes("/result")) {
+        const body = JSON.parse(opts.body);
+        results[body.id] = body;
+        return { ok: true, json: async () => ({ ok: true }) };
+      }
+      const next = script.shift() || { type: "none" };
+      return { ok: true, json: async () => next };
+    },
+    navigator: { userAgent: "TestAgent/1.0" },
+    chrome: {
+      runtime: {
+        onInstalled: { addListener: () => {} },
+        onStartup: { addListener: () => {} },
+        onMessage: { addListener: () => {} },
+      },
+      alarms: { create: () => {}, onAlarm: { addListener: () => {} } },
+      tabs: {
+        query: async () => [],
+        update: async () => ({}),
+        get: async () => ({}),
+        create: async (opts) => ({ id: 42, title: "", url: opts.url }),
+        remove: async (id) => { removed.push(id); },
+      },
+      scripting: { executeScript: async () => [{ result: [] }] },
+      storage: {
+        local: {
+          get: async (key) => ({ [key]: store[key] }),
+          set: async (obj) => { Object.assign(store, obj); },
+        },
+      },
+    },
+  };
+  vm.createContext(sandbox);
+  vm.runInContext(code, sandbox, { filename: "service_worker.js" });
+  const tick = () => new Promise((r) => setTimeout(r, 20));
+  for (let i = 0; i < 20 && (!results.c1 || !results.c2); i++) await tick();
+  assert.equal(results.c1?.ok, true);
+  assert.equal(results.c1?.result?.id, "42");
+  assert.deepEqual(removed, [42]);
+  assert.equal(results.c2?.ok, true);
+  // store.ownedTabs 是 vm 上下文里建的数组（原型不同），按值比。
+  assert.equal(JSON.stringify(store.ownedTabs), "[]");
+});

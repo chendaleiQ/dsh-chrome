@@ -55,6 +55,20 @@ async function postResult(body) {
   }
 }
 
+async function rememberOwnedTab(id) {
+  const { ownedTabs = [] } = await chrome.storage.local.get("ownedTabs");
+  const key = String(id);
+  if (!ownedTabs.includes(key)) {
+    ownedTabs.push(key);
+    await chrome.storage.local.set({ ownedTabs });
+  }
+}
+
+async function forgetOwnedTab(id) {
+  const { ownedTabs = [] } = await chrome.storage.local.get("ownedTabs");
+  await chrome.storage.local.set({ ownedTabs: ownedTabs.filter((t) => t !== String(id)) });
+}
+
 async function resolveTabId(params) {
   if (params.tabId !== undefined && params.tabId !== null && params.tabId !== "") {
     const id = Number(params.tabId);
@@ -79,6 +93,21 @@ async function handleAction(action, params) {
       const id = await resolveTabId(params);
       const tab = await chrome.tabs.update(id, { active: true });
       return { ok: true, activeTabId: String(tab.id) };
+    };
+    case "tab.close": {
+      if (params.tabId === undefined) throw new Error("missing tabId");
+      const id = await resolveTabId(params);
+      await chrome.tabs.remove(id);
+      await forgetOwnedTab(id);
+      return { closed: String(params.tabId) };
+    }
+    case "tab.new": {
+      const tab = await chrome.tabs.create({
+        url: typeof params.url === "string" && params.url !== "" ? params.url : "about:blank",
+        active: false,
+      });
+      await rememberOwnedTab(tab.id);
+      return { id: String(tab.id), title: tab.title || "", url: tab.pendingUrl || tab.url || "" };
     }
     case "page.navigate": {
       if (typeof params.url !== "string" || params.url === "") throw new Error("missing url");

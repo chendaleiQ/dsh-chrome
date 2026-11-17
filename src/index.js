@@ -22,7 +22,7 @@ const DEFAULTS = {
   bridgeHost: "127.0.0.1",
   bridgePort: 17319,
   approvalPolicy: "read-auto",
-  requireApprovalFor: ["chrome_navigate", "chrome_evaluate", "chrome_tab_select"],
+  requireApprovalFor: ["chrome_navigate", "chrome_evaluate", "chrome_tab_select", "chrome_tab_new", "chrome_tab_close"],
   blockPrivateIPs: true,
   snapshotMaxChars: 8000,
   evaluateMaxChars: 4000,
@@ -153,6 +153,43 @@ export function apply(ctx, rawConfig) {
       },
     },
     async (args) => send("tab.activate", { tabId: args.tabId }),
+  );
+
+  // ---- 写：开新标签页（后台开，不抢焦点；记为自有 tab） ----
+  register(
+    {
+      name: "chrome_tab_new",
+      description: "Open a new background tab, optionally with a URL. Tracked as an owned tab for later cleanup.",
+      parameters: {
+        type: "object",
+        properties: {
+          url: { type: "string", description: "https URL to open. Defaults to about:blank." },
+        },
+        additionalProperties: false,
+      },
+    },
+    async (args = {}) => {
+      if (args.url !== undefined) {
+        const blocked = isBlockedUrl(args.url, config.blockPrivateIPs);
+        if (blocked) throw new Error(`navigation blocked: ${blocked}`);
+      }
+      return send("tab.new", { url: args.url });
+    },
+  );
+
+  // ---- 写：关标签页 ----
+  register(
+    {
+      name: "chrome_tab_close",
+      description: "Close one tab by id.",
+      parameters: {
+        type: "object",
+        properties: { tabId: { type: "string", description: "Tab id from chrome_tabs_list." } },
+        required: ["tabId"],
+        additionalProperties: false,
+      },
+    },
+    async (args) => send("tab.close", { tabId: args.tabId }),
   );
 
   // ---- 只读：无障碍快照（省 token 优先于截图） ----
