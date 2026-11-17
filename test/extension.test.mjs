@@ -67,6 +67,7 @@ test("extension: tab.new/tab.close dispatch through a scripted bridge", async ()
   const script = [
     { type: "command", command: { id: "c1", action: "tab.new", params: { url: "https://example.com/" } } },
     { type: "command", command: { id: "c2", action: "tab.close", params: { tabId: "42" } } },
+    { type: "command", command: { id: "c3", action: "page.fill", params: { mode: "discover" } } },
   ];
   const results = {};
   const sandbox = {
@@ -94,7 +95,7 @@ test("extension: tab.new/tab.close dispatch through a scripted bridge", async ()
       },
       alarms: { create: () => {}, onAlarm: { addListener: () => {} } },
       tabs: {
-        query: async () => [],
+        query: async () => [{ id: 9 }],
         update: async () => ({}),
         get: async () => ({}),
         create: async (opts) => ({ id: 42, title: "", url: opts.url }),
@@ -112,11 +113,12 @@ test("extension: tab.new/tab.close dispatch through a scripted bridge", async ()
   vm.createContext(sandbox);
   vm.runInContext(code, sandbox, { filename: "service_worker.js" });
   const tick = () => new Promise((r) => setTimeout(r, 20));
-  for (let i = 0; i < 20 && (!results.c1 || !results.c2); i++) await tick();
+  for (let i = 0; i < 30 && (!results.c1 || !results.c2 || !results.c3); i++) await tick();
   assert.equal(results.c1?.ok, true);
   assert.equal(results.c1?.result?.id, "42");
   assert.deepEqual(removed, [42]);
   assert.equal(results.c2?.ok, true);
+  assert.equal(results.c3?.ok, true);
   // store.ownedTabs 是 vm 上下文里建的数组（原型不同），按值比。
   assert.equal(JSON.stringify(store.ownedTabs), "[]");
 });

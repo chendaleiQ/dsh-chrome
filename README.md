@@ -25,7 +25,7 @@ node scripts/setup.mjs          # 检查环境 + 单测 + 打印下面两步要�
 projects/dsh-chrome/
   package.json          # @chendaleiq/dsh-chrome，Host-only bundle
   cordis.patch.yml      # id/name/config（bridgePort 默认 17319，只听本机）
-  src/index.js          # apply(ctx, config)：defineTool 包装后注册 9 个工具
+  src/index.js          # apply(ctx, config)：defineTool 包装后注册 11 个工具
   src/tools.js          # 工具定义（纯模块，可单测；defineTool 契约见注释）
   src/bridge-client.js  # 最小 wire 协议客户端
   src/bridge-server.js  # 本地桥：/status /command /next（25s 长轮询）/result
@@ -41,7 +41,7 @@ projects/dsh-chrome/
   test/*.test.mjs
 ```
 
-## 工具（10 个）
+## 工具（11 个）
 
 | 工具 | 要审批 | 说明 |
 |---|---|---|
@@ -50,6 +50,7 @@ projects/dsh-chrome/
 | `chrome_tabs_list` | 否 | 标签页列表（有界） |
 | `chrome_snapshot` | 否 | 无障碍快照，阅读优先用它而不是截图 |
 | `chrome_screenshot` | 否 | 只回文件 path，不回 base64 |
+| `chrome_fill` | 是 | 先 discover 拿选择器，再 fill 填值/点按钮；无 eval，CSP 页面可用 |
 | `chrome_tab_select` | 是 | 按 id 激活标签页 |
 | `chrome_tab_new` | 是 | 后台开新标签页，记为自有 |
 | `chrome_tab_close` | 是 | 按 id 关闭标签页 |

@@ -3,8 +3,8 @@
  * POSTs back to /result. Matches projects/dsh-chrome/src/bridge-server.js.
  *
  * Wire actions implemented:
- *   tab.version / tab.list / tab.activate
- *   page.navigate / page.snapshot / page.screenshot / page.evaluate
+ *   tab.version / tab.list / tab.activate / tab.new / tab.close
+ *   page.navigate / page.snapshot / page.screenshot / page.evaluate / page.fill
  * Everything else returns an explicit "unsupported in 0.1.0" error (fail-closed).
  */
 const BRIDGE = "http://127.0.0.1:17319";
@@ -156,6 +156,15 @@ async function handleAction(action, params) {
       const dataUrl = await chrome.tabs.captureVisibleTab(windowId, { format: "png" });
       return { dataUrl, fullPage: false, tabId: String(id) };
     }
+    case "page.fill": {
+      const id = await resolveTabId(params);
+      const [{ result }] = await chrome.scripting.executeScript({
+        target: { tabId: id },
+        func: fillPage,
+        args: [params.mode === "discover" ? "discover" : "fill", Array.isArray(params.fields) ? params.fields : []],
+      });
+      return result;
+    }
     case "page.evaluate": {
       if (typeof params.expression !== "string" || params.expression === "") throw new Error("missing expression");
       const id = await resolveTabId(params);
@@ -197,6 +206,94 @@ function snapshotPage() {
     out.push({ uid: `el-${n}`, role, name });
   }
   return out;
+}
+
+/**
+ * Runs in the page (isolated world). Fully static — no eval, so page CSP
+ * (and the extension's own CSP) cannot block it.
+ * mode "discover": list visible form controls with generated selectors.
+ * mode "fill": [{ selector, value?, click? }] — set values with native
+ * setters + input/change events (React-friendly), or click.
+ */
+function fillPage(mode, fields) {
+  const cssPath = (el) => {
+    if (el.id) return "#" + CSS.escape(el.id);
+    const parts = [];
+    let cur = el;
+    while (cur && cur !== document.body && parts.length < 6) {
+      let seg = cur.tagName.toLowerCase();
+      const parent = cur.parentElement;
+      if (parent) {
+        const sibs = Array.prototype.filter.call(parent.children, (c) => c.tagName === cur.tagName);
+        if (sibs.length > 1) seg += ":nth-of-type(" + (sibs.indexOf(cur) + 1) + ")";
+      }
+      parts.unshift(seg);
+      cur = parent;
+    }
+    return parts.join(" > ");
+  };
+  const labelOf = (el) => {
+    if (el.id) {
+      const lab = document.querySelector('label[for="' + el.id + '"]');
+      if (lab && lab.innerText) return lab.innerText.trim().replace(/\s+/g, " ").slice(0, 80);
+    }
+    return ((el.getAttribute("aria-label") || el.placeholder || el.name || "").trim().replace(/\s+/g, " ").slice(0, 80));
+  };
+  if (mode === "discover") {
+    const els = Array.prototype.filter.call(
+      document.querySelectorAll("input, select, textarea, button"),
+      (e) => e.offsetParent !== null,
+    );
+    return {
+      fields: els.slice(0, 50).map((el) => ({
+        selector: cssPath(el),
+        tag: el.tagName.toLowerCase(),
+        type: el.type || "",
+        label: labelOf(el),
+      })),
+    };
+  }
+  const out = [];
+  for (const f of fields) {
+    const el = document.querySelector(f.selector);
+    if (!el) {
+      out.push({ selector: f.selector, ok: false, error: "not found" });
+      continue;
+    }
+    if (f.click) {
+      el.click();
+      out.push({ selector: f.selector, ok: true, clicked: true });
+      continue;
+    }
+    const tag = el.tagName.toLowerCase();
+    if (tag === "select") {
+      const want = String(f.value === undefined ? "" : f.value).trim();
+      const opts = Array.prototype.slice.call(el.options);
+      const idx = opts.findIndex((o) => o.value === f.value || o.text.trim() === want);
+      if (idx < 0) {
+        out.push({ selector: f.selector, ok: false, error: "option not found" });
+        continue;
+      }
+      el.selectedIndex = idx;
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+      out.push({ selector: f.selector, ok: true });
+      continue;
+    }
+    if (el.type === "checkbox") {
+      el.checked = !!f.value && f.value !== "false" && f.value !== "0";
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+      out.push({ selector: f.selector, ok: true });
+      continue;
+    }
+    const proto = tag === "textarea" ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
+    const setter = Object.getOwnPropertyDescriptor(proto, "value");
+    if (setter && setter.set) setter.set.call(el, String(f.value === undefined ? "" : f.value));
+    else el.value = f.value === undefined ? "" : f.value;
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+    out.push({ selector: f.selector, ok: true });
+  }
+  return { fields: out };
 }
 
 chrome.runtime.onInstalled.addListener(() => {

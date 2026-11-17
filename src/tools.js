@@ -121,6 +121,36 @@ export function compileToolDefinition(def) {
 export function buildTools({ send, bridgeStatus, config, saveScreenshot, sessionKey, doOnboard }) {
   return [
     {
+      name: "chrome_fill",
+      description: "列出或填写页面表单：先 discover 拿选择器，再 fill 填值/点按钮；无 eval，CSP 页面也可用。List or fill page forms: discover first for selectors, then fill values/click; no eval, works under page CSP.",
+      parameters: {
+        tabId: { type: "string", description: "默认当前活动标签页。Defaults to the active tab." },
+        discover: { type: "boolean", description: "true 则只列出可见表单控件与选择器。List visible form controls with selectors." },
+        fields: { type: "array", description: "要填的项：[{ selector, value?, click? }]，先用 discover 拿 selector。Fields: [{selector, value?, click?}]; discover first." },
+      },
+      output: {
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            fields: { type: "array", required: true, items: { type: "object" } },
+          },
+        },
+        render: (_args, value) => textBlock(JSON.stringify(value.fields, null, 1).slice(0, 4000)),
+      },
+      async execute(args, exec) {
+        void exec;
+        if (args.discover === true) {
+          const r = await send("page.fill", { mode: "discover", tabId: args.tabId }, 20000, exec);
+          return { fields: Array.isArray(r?.fields) ? r.fields : [] };
+        }
+        const fields = args.fields;
+        if (!Array.isArray(fields) || fields.length === 0) throw new Error("fill needs fields: [{ selector, value?, click? }] (or discover: true first)");
+        const r = await send("page.fill", { mode: "fill", tabId: args.tabId, fields }, 30000, exec);
+        return { fields: Array.isArray(r?.fields) ? r.fields : [] };
+      },
+    },
+    {
       name: "chrome_onboard",
       description: "引导安装 Chrome 扩展：桥不通或扩展没连上时调它，会打开文件管理器定位扩展目录并返回步骤。Guide extension setup: opens the file manager at the extension folder and returns steps.",
       parameters: {},

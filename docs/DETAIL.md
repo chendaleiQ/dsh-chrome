@@ -9,8 +9,10 @@ Read tabs, snapshot pages, navigate, screenshot, and evaluate JS in local Chrome
 - `chrome_tabs_list` / `chrome_snapshot`：先看列表与快照，截图只是确认。
   List tabs and snapshot first; screenshot only to confirm.
 - `chrome_navigate` / `chrome_tab_select` / `chrome_tab_new` / `chrome_tab_close` /
-  `chrome_evaluate`：写操作与最高危取值，走 DSH 审批；私有网段直接硬拒。
+  `chrome_fill` / `chrome_evaluate`：写操作与最高危取值，走 DSH 审批；私有网段直接硬拒。
   Writes and eval go through DSH approval; private hosts are hard-rejected.
+  `chrome_fill` 无 eval，CSP 页面（npmjs.com 这类）也能填表点按钮。
+  `chrome_fill` uses no eval, so it works even under strict page CSP.
 - 截图只回文件 path，不把 base64 塞进上下文；快照与求值超长截断。
   Screenshots return file paths (no base64); snapshots/evals truncate.
 

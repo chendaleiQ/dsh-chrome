@@ -14,7 +14,7 @@
         bridgeHost: '127.0.0.1'
         # 只读默认放行，写操作默认问；与 DSH approval/sandbox 叠加，不替代
         approvalPolicy: 'read-auto'
-        requireApprovalFor: ['chrome_navigate', 'chrome_evaluate', 'chrome_tab_select', 'chrome_tab_new', 'chrome_tab_close']
+        requireApprovalFor: ['chrome_navigate', 'chrome_evaluate', 'chrome_tab_select', 'chrome_tab_new', 'chrome_tab_close', 'chrome_fill']
         blockPrivateIPs: true
         snapshotMaxChars: 8000
         evaluateMaxChars: 4000

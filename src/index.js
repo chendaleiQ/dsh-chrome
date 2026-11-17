@@ -27,7 +27,7 @@ const DEFAULTS = {
   bridgeHost: "127.0.0.1",
   bridgePort: 17319,
   approvalPolicy: "read-auto",
-  requireApprovalFor: ["chrome_navigate", "chrome_evaluate", "chrome_tab_select", "chrome_tab_new", "chrome_tab_close"],
+  requireApprovalFor: ["chrome_navigate", "chrome_evaluate", "chrome_tab_select", "chrome_tab_new", "chrome_tab_close", "chrome_fill"],
   blockPrivateIPs: true,
   snapshotMaxChars: 8000,
   evaluateMaxChars: 4000,

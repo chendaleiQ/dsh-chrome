@@ -33,7 +33,7 @@ node scripts/setup.mjs          # env checks + tests + prints the paths below
 projects/dsh-chrome/
   package.json          # @chendaleiq/dsh-chrome, Host-only bundle
   cordis.patch.yml      # id/name/config (bridgePort defaults to 17319, loopback only)
-  src/index.js          # apply(ctx, config): wrap with defineTool, register 9 tools
+  src/index.js          # apply(ctx, config): wrap with defineTool, register 11 tools
   src/tools.js          # tool definitions (pure module, unit-testable)
   src/bridge-client.js  # minimal wire-protocol client
   src/bridge-server.js  # local bridge: /status /command /next (25s long-poll) /result
@@ -49,7 +49,7 @@ projects/dsh-chrome/
   test/*.test.mjs
 ```
 
-## Tools (10)
+## Tools (11)
 
 | Tool | Approval | Notes |
 |---|---|---|
@@ -58,6 +58,7 @@ projects/dsh-chrome/
 | `chrome_tabs_list` | no | Bounded tab list |
 | `chrome_snapshot` | no | Accessibility snapshot; prefer over screenshots for reading |
 | `chrome_screenshot` | no | Returns file path only, never base64 |
+| `chrome_fill` | yes | Discover selectors first, then fill/click; no eval, CSP-safe |
 | `chrome_tab_select` | yes | Activate one tab by id |
 | `chrome_tab_new` | yes | Background tab, tracked as owned |
 | `chrome_tab_close` | yes | Close one tab by id |
