@@ -12,12 +12,13 @@ function harness(sendImpl) {
     config: { blockPrivateIPs: true, snapshotMaxChars: 8000, evaluateMaxChars: 4000, dataDir: "" },
     saveScreenshot: () => ({ path: "/tmp/x.png", bytes: 1, width: 1, height: 1 }),
     sessionKey: "session:test",
+    doOnboard: async () => ({ connected: false, bridgeUp: true, extensionDir: "/x/extension", opened: true, steps: [] }),
   });
 }
 
 test("tools: nine definitions with output schemas", () => {
   const names = [...byName(harness(async () => ({}))).keys()].sort();
-  assert.deepEqual(names, ["chrome_evaluate", "chrome_navigate", "chrome_screenshot", "chrome_snapshot", "chrome_status", "chrome_tab_close", "chrome_tab_new", "chrome_tab_select", "chrome_tabs_list"]);
+  assert.deepEqual(names, ["chrome_evaluate", "chrome_navigate", "chrome_onboard", "chrome_screenshot", "chrome_snapshot", "chrome_status", "chrome_tab_close", "chrome_tab_new", "chrome_tab_select", "chrome_tabs_list"]);
   for (const t of harness(async () => ({}))) {
     assert.equal(typeof t.output.render, "function");
     assert.equal(typeof t.execute, "function");

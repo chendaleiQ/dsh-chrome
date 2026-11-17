@@ -115,10 +115,35 @@ export function compileToolDefinition(def) {
  * @param deps.config resolved config
  * @param deps.saveScreenshot (dataDir, sessionKey, dataUrl) => { path, bytes, width, height }
  * @param deps.sessionKey stable session key
+ * @param deps.doOnboard () => Promise<onboard result>
  * @returns plain tool definitions ({ name, description, parameters, output, execute })
  */
-export function buildTools({ send, bridgeStatus, config, saveScreenshot, sessionKey }) {
+export function buildTools({ send, bridgeStatus, config, saveScreenshot, sessionKey, doOnboard }) {
   return [
+    {
+      name: "chrome_onboard",
+      description: "引导安装 Chrome 扩展：桥不通或扩展没连上时调它，会打开文件管理器定位扩展目录并返回步骤。Guide extension setup: opens the file manager at the extension folder and returns steps.",
+      parameters: {},
+      output: {
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            connected: { type: "boolean", required: true },
+            bridgeUp: { type: "boolean", required: true },
+            extensionDir: { type: "string", required: true },
+            opened: { type: "boolean", required: true },
+            steps: { type: "array", required: true, items: { type: "string" } },
+          },
+        },
+        render: (_args, value) => textBlock([`connected: ${value.connected}`, `extensionDir: ${value.extensionDir}`, ...value.steps].join("\n")),
+      },
+      async execute(args, exec) {
+        void args;
+        void exec;
+        return doOnboard();
+      },
+    },
     {
       name: "chrome_status",
       description: "检查本地 Chrome 桥连接状态；其他 chrome_* 出错时先调它。Check the local Chrome bridge connection; call first when other chrome_* tools fail.",

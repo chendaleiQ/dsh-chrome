@@ -13,6 +13,10 @@ import { bridgeSend, bridgeStatus, bridgeUrlOf } from "./bridge-client.js";
 import { ensureBridge } from "./auto-bridge.js";
 import { saveScreenshot } from "./screenshot.js";
 import { buildTools, compileToolDefinition } from "./tools.js";
+import { alreadyOnboarded, onboard } from "./onboard.js";
+import { homedir } from "node:os";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 export const name = "@chendaleiq/dsh-chrome";
 
@@ -53,6 +57,10 @@ export function apply(ctx, rawConfig) {
   const baseUrl = bridgeUrlOf(config);
   const disposers = [];
   const SESSION_KEY = "session:dsh-chrome";
+  const extensionDir = join(dirname(fileURLToPath(import.meta.url)), "..", "extension");
+  const dataDir = config.dataDir && config.dataDir.length > 0 ? config.dataDir : join(homedir(), ".dsh", "chrome");
+  const doOnboard = (extra = {}) =>
+    onboard({ bridgeStatus: () => bridgeStatus(baseUrl), dataDir, extensionDir, ...extra });
 
   if (config.autoStartBridge !== false) {
     try {
@@ -81,12 +89,19 @@ export function apply(ctx, rawConfig) {
     config,
     saveScreenshot,
     sessionKey: SESSION_KEY,
+    doOnboard: () => doOnboard(),
   })) {
     if (!ctx?.tools?.register) throw new Error("dsh-chrome requires ctx.tools.register");
     // 不 import @deepseek-ai/dsh-tools：工作区 bundle 解析不到发货包。
     // compileToolDefinition 按同一契约本地编译（output schema+render、参数校验）。
     const dispose = ctx.tools.register(compileToolDefinition(def));
     if (typeof dispose === "function") disposers.push(dispose);
+  }
+
+  // 首次安装且从没连上过：自动打开文件管理器定位 extension/，只做一次。
+  // 之后靠 chrome_onboard 工具按需引导。
+  if (!alreadyOnboarded(dataDir)) {
+    doOnboard({ markAttempt: true }).catch(() => {});
   }
 
   return () => {

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- 安装引导：`chrome_onboard` 工具 + 首次加载自动打开文件管理器（`open -R` /
+  `explorer /select` / `xdg-open`，`.onboarded` 标记只做一次）。
+  Onboarding: `chrome_onboard` tool + auto-reveal on first load.
+
 - 安装流程：一键 `scripts/setup.mjs`（环境检查 + 单测 + 桥状态 + 路径打印），
   `--install-launchd` 开机自启桥；新增 `scripts/bridge.mjs` 独立入口。
   Setup: one-command `scripts/setup.mjs`, `--install-launchd` autostart, new

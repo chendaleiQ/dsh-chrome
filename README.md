@@ -12,10 +12,11 @@ node scripts/setup.mjs          # 检查环境 + 单测 + 打印下面两步要�
 ```
 
 1. **装扩展**：`chrome://extensions` → 打开开发者模式 → 「加载已解压的扩展程序」→ 选择 `projects/dsh-chrome/extension/`。认准 **DSH Chrome Connector**。
+   （插件首次加载且从没连上过时，会自动帮你打开文件夹定位到这一步；平时连不上就调 `chrome_onboard` 工具，它会再开一次并给步骤。）
 2. **起桥**（二选一）：
    - 省事：`node scripts/setup.mjs --install-launchd` —— 开机自启，常驻后台；
    - 或者什么都不做：DSH 插件加载时会自动把桥拉起来（端口被占就当 client 用）。
-3. **装进 DSH**：插件页 → Add plugin → 选择本目录（`projects/dsh-chrome`）。装完新开会话就有 9 个 `chrome_*` 工具。
+3. **装进 DSH**：插件页 → Add plugin → 选择本目录（`projects/dsh-chrome`）。装完新开会话就有 10 个 `chrome_*` 工具。
 4. **验证**：`npm run verify`（等扩展上线，tab.version + tab.list 一把过）。
 
 ## 布局
@@ -40,10 +41,11 @@ projects/dsh-chrome/
   test/*.test.mjs
 ```
 
-## 工具（9 个）
+## 工具（10 个）
 
 | 工具 | 要审批 | 说明 |
 |---|---|---|
+| `chrome_onboard` | 否 | 扩展没连上时调它：打开文件夹定位扩展目录并返回步骤 |
 | `chrome_status` | 否 | 桥连通性；别的工具出错先调它 |
 | `chrome_tabs_list` | 否 | 标签页列表（有界） |
 | `chrome_snapshot` | 否 | 无障碍快照，阅读优先用它而不是截图 |

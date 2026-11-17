@@ -14,7 +14,7 @@ test("manifest: bundle wiring is consistent", () => {
   assert.match(patch, /id: dsh-chrome/);
   assert.match(patch, /name: '@chendaleiq\/dsh-chrome'/);
   assert.ok((pkg.exports["./locale/*.json"]) && pkg.exports["./icon"]);
-  for (const f of ["src/index.js", "src/tools.js", "src/auto-bridge.js", "src/bridge-client.js", "src/bridge-server.js", "src/screenshot.js", "scripts/setup.mjs", "scripts/bridge.mjs", "scripts/verify.mjs", "extension/manifest.json", "extension/service_worker.js", "extension/popup.html", "extension/popup.js", "extension/_locales/en/messages.json", "extension/_locales/zh_CN/messages.json", "cordis.patch.yml", "locale/en.json", "locale/zh.json", "docs/DETAIL.md", "docs/TESTING.md", "icon.svg", "README.md", "README.en.md", "LICENSE", "CHANGELOG.md"]) {
+  for (const f of ["src/index.js", "src/tools.js", "src/auto-bridge.js", "src/onboard.js", "src/bridge-client.js", "src/bridge-server.js", "src/screenshot.js", "scripts/setup.mjs", "scripts/bridge.mjs", "scripts/verify.mjs", "extension/manifest.json", "extension/service_worker.js", "extension/popup.html", "extension/popup.js", "extension/_locales/en/messages.json", "extension/_locales/zh_CN/messages.json", "cordis.patch.yml", "locale/en.json", "locale/zh.json", "docs/DETAIL.md", "docs/TESTING.md", "icon.svg", "README.md", "README.en.md", "LICENSE", "CHANGELOG.md"]) {
     assert.ok(existsSync(join(root, f)), `missing ${f}`);
   }
   const icon = statSync(join(root, "icon.svg"));

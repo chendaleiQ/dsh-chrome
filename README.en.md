@@ -16,12 +16,14 @@ node scripts/setup.mjs          # env checks + tests + prints the paths below
 1. **Install the extension**: `chrome://extensions` → enable Developer mode →
    “Load unpacked” → pick `projects/dsh-chrome/extension/`. Look for
    **DSH Chrome Connector**.
+   (On first load with no connection yet, the plugin opens the folder for you;
+   later, call the `chrome_onboard` tool whenever setup help is needed.)
 2. **Run the bridge** (either):
    - Hands-free: `node scripts/setup.mjs --install-launchd` — starts on login;
    - Or do nothing: the DSH plugin starts the bridge on load (falls back to
      client mode if the port is taken).
 3. **Install into DSH**: Plugins → Add plugin → pick this directory
-   (`projects/dsh-chrome`). New sessions get 9 `chrome_*` tools.
+   (`projects/dsh-chrome`). New sessions get 10 `chrome_*` tools.
 4. **Verify**: `npm run verify` (waits for the extension, then tab.version +
    tab.list in one go).
 
@@ -47,10 +49,11 @@ projects/dsh-chrome/
   test/*.test.mjs
 ```
 
-## Tools (9)
+## Tools (10)
 
 | Tool | Approval | Notes |
 |---|---|---|
+| `chrome_onboard` | no | Setup guide: opens the folder at the extension and returns steps |
 | `chrome_status` | no | Bridge health; call first when others fail |
 | `chrome_tabs_list` | no | Bounded tab list |
 | `chrome_snapshot` | no | Accessibility snapshot; prefer over screenshots for reading |
