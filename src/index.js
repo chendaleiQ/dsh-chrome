@@ -10,6 +10,7 @@
  */
 
 import { bridgeSend, bridgeStatus, bridgeUrlOf } from "./bridge-client.js";
+import { createBridge } from "./bridge-server.js";
 import { saveScreenshot } from "./screenshot.js";
 
 export const name = "@chendaleiq/dsh-chrome";
@@ -26,6 +27,7 @@ const DEFAULTS = {
   snapshotMaxChars: 8000,
   evaluateMaxChars: 4000,
   screenshotMaxBytes: 512000,
+  autoStartBridge: true,
   dataDir: "",
 };
 
@@ -73,6 +75,28 @@ export function apply(ctx, rawConfig) {
   // 会话隔离键：照着 pi 的 sessionKey 思路重写，DSH 侧固定一个稳定 key，
   // 退出时调 automation.cleanup 带同 key，避免留孤儿 tab。
   const SESSION_KEY = "session:dsh-chrome";
+  // 桥是谁起的：Host 插件自己起（127.0.0.1 回环），退出时关掉。
+  // 端口被占（另一个 DSH 会话已起）就当 client 用，不报错。
+  let ownedBridge = null;
+  if (config.autoStartBridge !== false) {
+    try {
+      const bridge = createBridge({ host: config.bridgeHost, port: config.bridgePort });
+      const started = bridge
+        .listen()
+        .then(() => {
+          ownedBridge = bridge;
+        })
+        .catch(() => {
+          ownedBridge = null;
+        });
+      disposers.push(() => {
+        // listen 可能还没 resolve：排队到它之后再关，保证不留悬空端口。
+        started.then(() => bridge.close().catch(() => {})).catch(() => {});
+      });
+    } catch {
+      // 起不了就当纯 client，chrome_status 会如实报告
+    }
+  }
   const send = (action, params = {}, timeoutMs) =>
     bridgeSend(baseUrl, action, { sessionKey: SESSION_KEY, background: true, foreground: false, ...params }, timeoutMs);
 

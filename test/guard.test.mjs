@@ -17,7 +17,7 @@ function fakeCtx() {
 
 test("guard: private navigation is hard-denied without touching the bridge", async () => {
   const ctx = fakeCtx();
-  const cleanup = apply(ctx, {});
+  const cleanup = apply(ctx, { autoStartBridge: false });
   try {
     const nav = ctx.collected.get("chrome_navigate");
     assert.ok(nav, "chrome_navigate not registered");
