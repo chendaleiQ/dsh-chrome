@@ -148,7 +148,12 @@ function snapshotPage() {
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.alarms.create("dsh-bridge-keepalive", { periodInMinutes: 0.5 });
+  // 0.5 分钟是期望值：Chrome 会按自身下限钳制，失败也不影响轮询（setInterval + poll-now 兜底）。
+  try {
+    chrome.alarms.create("dsh-bridge-keepalive", { periodInMinutes: 0.5 });
+  } catch {
+    // 无闹钟也能跑：前台 pollOnce + 弹窗手动唤醒
+  }
   pollOnce();
 });
 chrome.runtime.onStartup.addListener(() => pollOnce());
