@@ -9,11 +9,10 @@
  * loader 行 id、package 名、本文件的 `name` 三者必须一致。
  */
 
-import { defineTool } from "@deepseek-ai/dsh-tools";
 import { bridgeSend, bridgeStatus, bridgeUrlOf } from "./bridge-client.js";
 import { ensureBridge } from "./auto-bridge.js";
 import { saveScreenshot } from "./screenshot.js";
-import { buildTools } from "./tools.js";
+import { buildTools, compileToolDefinition } from "./tools.js";
 
 export const name = "@chendaleiq/dsh-chrome";
 
@@ -90,7 +89,9 @@ export function apply(ctx, rawConfig) {
     sessionKey: SESSION_KEY,
   })) {
     if (!ctx?.tools?.register) throw new Error("dsh-chrome requires ctx.tools.register");
-    const dispose = ctx.tools.register(defineTool(def));
+    // 不 import @deepseek-ai/dsh-tools：工作区 bundle 解析不到发货包。
+    // compileToolDefinition 按同一契约本地编译（output schema+render、参数校验）。
+    const dispose = ctx.tools.register(compileToolDefinition(def));
     if (typeof dispose === "function") disposers.push(dispose);
   }
 

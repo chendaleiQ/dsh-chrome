@@ -29,6 +29,87 @@ const int = (v) => (Number.isSafeInteger(v) ? v : undefined);
 const textBlock = (text) => [{ type: "text", text: String(text) }];
 
 /**
+ * 把 per-property DSL（{ type, required, description, ... }，与 DSH
+ * defineTool 的 ParameterSchemaSpec/ValueSchemaSpec 同形）编译成注册器要的
+ * 标准 JSON Schema：required:true 收拢为父级 required 数组，其余原样透传。
+ * 只用得到 type/required/description/minimum/maximum/default/const/oneOf/
+ * items/properties/additionalProperties —— 够覆盖本包全部 9 个工具。
+ */
+function compileNode(spec) {
+  if (spec === null || typeof spec !== "object" || Array.isArray(spec)) return spec;
+  const out = {};
+  for (const [k, v] of Object.entries(spec)) {
+    if (k === "required" || k === "properties" || k === "items" || k === "oneOf") continue;
+    out[k] = v;
+  }
+  if (spec.properties && typeof spec.properties === "object") {
+    const compiled = compilePropertyMap(spec.properties);
+    out.properties = compiled.properties;
+    if (compiled.required !== undefined) out.required = compiled.required;
+  }
+  if (spec.items !== undefined) {
+    out.items = Array.isArray(spec.items) ? spec.items.map(compileNode) : compileNode(spec.items);
+  }
+  if (Array.isArray(spec.oneOf)) out.oneOf = spec.oneOf.map(compileNode);
+  return out;
+}
+
+function compilePropertyMap(propMap) {
+  const properties = {};
+  const required = [];
+  for (const [k, v] of Object.entries(propMap)) {
+    if (v !== null && typeof v === "object" && !Array.isArray(v)) {
+      const { required: req, ...rest } = v;
+      properties[k] = compileNode(rest);
+      if (req === true) required.push(k);
+    } else {
+      properties[k] = compileNode(v);
+    }
+  }
+  return { properties, ...(required.length > 0 ? { required } : {}) };
+}
+
+/** 编译单个工具定义为注册器可直接吃的形态（含参数校验包装）。 */
+export function compileToolDefinition(def) {
+  const compiledParams = {
+    type: "object",
+    properties: compilePropertyMap(def.parameters || {}).properties,
+    ...(() => {
+      const { required } = compilePropertyMap(def.parameters || {});
+      return required !== undefined ? { required } : {};
+    })(),
+  };
+  const compiledSchema = compileNode(def.output.schema);
+  const checkType = (t, v) => {
+    if (t === "string") return typeof v === "string";
+    if (t === "boolean") return typeof v === "boolean";
+    if (t === "integer") return Number.isInteger(v);
+    if (t === "number") return typeof v === "number";
+    return true;
+  };
+  return {
+    name: def.name,
+    description: def.description,
+    parameters: compiledParams,
+    output: { schema: compiledSchema, render: def.output.render },
+    async execute(args, exec) {
+      const a = args === null || typeof args !== "object" ? {} : args;
+      const violations = [];
+      for (const [k, spec] of Object.entries(def.parameters || {})) {
+        const s = spec !== null && typeof spec === "object" && !Array.isArray(spec) ? spec : {};
+        if (a[k] === undefined) {
+          if (s.required === true) violations.push(`${k}: required`);
+        } else if (s.type !== undefined && !checkType(s.type, a[k])) {
+          violations.push(`${k}: expected ${s.type}`);
+        }
+      }
+      if (violations.length > 0) throw new Error(`invalid arguments: ${violations.join("; ")}`);
+      return def.execute(a, exec);
+    },
+  };
+}
+
+/**
  * @param deps.send (action, params, timeoutMs, exec) => Promise<result>
  * @param deps.bridgeStatus () => Promise<status>
  * @param deps.config resolved config
