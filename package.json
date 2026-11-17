@@ -1,6 +1,6 @@
 {
   "name": "@chendaleiq/dsh-chrome",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Control local Chrome from DSH: status, tabs, snapshot, navigate, screenshot, evaluate.",
   "license": "MIT",

@@ -1,23 +1,13 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 — 2026-11-17
 
-- 分发：npm `@chendaleiq/dsh-chrome@0.1.0` 已发布；market 索引切到 npm source
-  （Discover 走 CDN 安装）。
-
-- 安装引导：`chrome_onboard` 工具 + 首次加载自动打开文件管理器（`open -R` /
-  `explorer /select` / `xdg-open`，`.onboarded` 标记只做一次）。
-  Onboarding: `chrome_onboard` tool + auto-reveal on first load.
-
-- 安装流程：一键 `scripts/setup.mjs`（环境检查 + 单测 + 桥状态 + 路径打印），
-  `--install-launchd` 开机自启桥；新增 `scripts/bridge.mjs` 独立入口。
-  Setup: one-command `scripts/setup.mjs`, `--install-launchd` autostart, new
-  `scripts/bridge.mjs` standalone entry.
-- 扩展 UI：弹窗改卡片式（状态 + 心跳 + 版本 + 文档入口），全部文案走
-  `chrome.i18n`（`_locales/en` + `_locales/zh_CN`）。Popup redesign with full
-  chrome.i18n coverage.
-- 工具描述中英双语；bundle locale 补齐；README 中英双版。
-  Bilingual tool descriptions, bundle locales, README in both languages.
+- 新增 `chrome_fill`：CSP 安全的表单填写（静态注入函数，无 eval），discover 先拿选择器。
+  New `chrome_fill`: CSP-safe form fill via a static injected function (no eval).
+- 新增 `chrome_onboard`：扩展没连上时打开文件管理器定位扩展目录，首次加载自动做一次。
+- 扩展 UI 卡片式重做 + 全量 chrome.i18n（en + zh_CN）；工具描述、README/DETAIL/TESTING 中英双语。
+- 安装流程：一键 `scripts/setup.mjs`、`--install-launchd` 开机自启、`scripts/bridge.mjs` 独立入口、market 索引（Discover 可搜）。
+- 修过两个真 bug：EADDRINUSE 未接住会崩宿主（现降级为 client）；空闲轮询 return 跳过紧循环（现统一收敛）。
 
 ## 0.1.0 — 2026-11-17
 
