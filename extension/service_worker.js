@@ -18,28 +18,34 @@ async function pollOnce() {
   await heartbeat("attempt", false);
   try {
     const res = await fetch(`${BRIDGE}/next?name=${encodeURIComponent("DSH Chrome Connector")}`, { cache: "no-store" });
-    await heartbeat(res.ok ? "ok" : `http-${res.status}`);
-    if (!res.ok) return;
-    const msg = await res.json().catch(() => null);
-    if (!msg || msg.type !== "command" || !msg.command) return;
-    const { id, action, params } = msg.command;
-    try {
-      const result = await handleAction(action, params || {});
-      await postResult({ id, ok: true, result });
-    } catch (e) {
-      await postResult({ id, ok: false, error: String((e && e.message) || e) });
-    } finally {
-      // 紧循环：有命令立刻下一次 /next
-      polling = false;
-      pollOnce();
+    if (res.ok) {
+      const msg = await res.json().catch(() => null);
+      if (msg && msg.type === "command" && msg.command) {
+        const { id, action, params } = msg.command;
+        try {
+          const result = await handleAction(action, params || {});
+          await postResult({ id, ok: true, result });
+          await heartbeat("command");
+        } catch (e) {
+          await postResult({ id, ok: false, error: String((e && e.message) || e) });
+          await heartbeat("command-error");
+        }
+      } else {
+        await heartbeat("idle");
+      }
+    } else {
+      await heartbeat(`http-${res.status}`);
     }
   } catch {
     await heartbeat("fetch-failed");
-    // bridge down — 2s 后由闹钟/interval 重试
+    // bridge down — 歇 2 秒再试，避免空转打满循环
     await new Promise((r) => setTimeout(r, 2000));
   } finally {
     polling = false;
   }
+  // 紧循环：有无命令都立刻下一次 /next（服务端 hold 25s，空闲开销可忽略）。
+  // 靠这个保证命令下发延迟在秒级，而不是等 30-60s 的闹钟。
+  pollOnce();
 }
 
 // 每次轮询都写 storage：popup 直接读，不靠 SW 存活。用户报问题时看这三行就够。

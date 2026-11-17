@@ -12,15 +12,17 @@ test("extension: service worker module evaluates and polls without throwing", as
   let polls = 0;
   const listeners = {};
   const store = {};
+  let releaseHold = () => {};
   const sandbox = {
     console,
     setInterval: () => 0,
-    // SW 只在出错重试时用 setTimeout；happy path 不需要，悬空返回即可。
     setTimeout: () => 0,
     clearTimeout: () => {},
     fetch: async (url) => {
       polls += 1;
       assert.match(String(url), /127\.0\.0\.1:17319/);
+      // 模拟 25s 长轮询 hold：测试手动放行，避免紧循环空转卡住进程退出
+      await new Promise((r) => { releaseHold = r; });
       return { ok: true, json: async () => ({ type: "none" }) };
     },
     navigator: { userAgent: "TestAgent/1.0" },
@@ -43,22 +45,20 @@ test("extension: service worker module evaluates and polls without throwing", as
   };
   vm.createContext(sandbox);
   vm.runInContext(code, sandbox, { filename: "service_worker.js" });
-  // 模块求值 + 顶层 pollOnce + 手动触发 installed/startup/message，逐步数轮询
+  // 模块求值 + 顶层 pollOnce（hold 住）+ 手动放行，看紧循环是否立刻跟上下一次
   const tick = () => new Promise((r) => setTimeout(r, 20));
   await tick();
   assert.equal(polls, 1, "top-level pollOnce");
-  listeners.installed();
+  assert.equal(typeof listeners.installed, "function");
+  assert.equal(typeof listeners.startup, "function");
+  assert.equal(typeof listeners.message, "function");
+  releaseHold();
   await tick();
-  assert.equal(polls, 2, "onInstalled pollOnce");
-  listeners.startup();
-  await tick();
-  assert.equal(polls, 3, "onStartup pollOnce");
-  await listeners.message({ type: "poll-now" });
-  await tick();
-  assert.equal(polls, 4, "poll-now pollOnce");
-  // 心跳每次轮询都写 storage（跨 vm 比值）
-  assert.equal(JSON.stringify(store.swHeartbeat && store.swHeartbeat.polls), "4");
-  assert.equal(store.swHeartbeat && store.swHeartbeat.state, "ok");
+  assert.equal(polls, 2, "tight loop re-polls after idle");
+  // 心跳每次完成都写 storage（跨 vm 上下文按值比）；
+  // 紧循环下第二次轮询已在途，所以 state 是 attempt（= 存活证明），polls 只计完成的
+  assert.equal(JSON.stringify(store.swHeartbeat && store.swHeartbeat.polls), "1");
+  assert.equal(store.swHeartbeat && store.swHeartbeat.state, "attempt");
 });
 
 test("extension: tab.new/tab.close dispatch through a scripted bridge", async () => {
@@ -80,7 +80,9 @@ test("extension: tab.new/tab.close dispatch through a scripted bridge", async ()
         results[body.id] = body;
         return { ok: true, json: async () => ({ ok: true }) };
       }
-      const next = script.shift() || { type: "none" };
+      const next = script.shift();
+      // 脚本走完就 park 住（模拟长轮询 hold），否则紧循环空转饿死 tick
+      if (!next) await new Promise(() => {});
       return { ok: true, json: async () => next };
     },
     navigator: { userAgent: "TestAgent/1.0" },
