@@ -9,9 +9,10 @@ DSH 用的本地 Chrome 操控插件：连你已经登录的那个 Chrome，能�
 - [x] 立项：`package.json` / `cordis.patch.yml` / `src/` / `extension/` / `locale` / `test`
 - [x] 本地桥协议：`/status` / `/command` / `/next` / `/result` + fake 扩展端到端回路（`test/e2e.test.mjs`）
 - [x] 扩展 7 动作：`tab.version/list/activate` + `page.navigate/snapshot/screenshot/evaluate`（6 项测试全过）
-- [ ] 真机联调：加载扩展后跑 `chrome_status` / `chrome_tabs_list`（待用户在 `chrome://extensions` 加载 `extension/`）
-- [ ] 写操作：`chrome_navigate` / `chrome_tab_select` / `chrome_evaluate` + 审批与私有地址硬拒（代码已就绪，待真机验证）
-- [ ] `install_bundle` 装进 DSH 验证
+- [x] 真机联调：`tab.version` / `tab.list`（13 个真实标签）/ `page.evaluate` /
+  `page.snapshot`（27 节点）/ `page.screenshot`（3840×1916 落盘）全部只读打通
+- [x] `install_bundle` 装进 desktop profile（`application: applied`，零警告）
+- [ ] 新会话里跑 `chrome_status`（插件已就位，等一次人工确认）
 - [x] 开源到 GitHub：https://github.com/chendaleiQ/dsh-chrome
 
 ## 布局
