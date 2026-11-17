@@ -91,7 +91,7 @@ MIT, see [LICENSE](LICENSE). Shipped files are whitelisted in `package.json`.
 
 | Channel | Status | How |
 |---|---|---|
-| npm `@chendaleiq/dsh-chrome` | Pending (local login expired, needs one `npm login`) | `npm i @chendaleiq/dsh-chrome` (after publish) |
+| npm `@chendaleiq/dsh-chrome` | ✅ 0.1.0 published | `npm i @chendaleiq/dsh-chrome` |
 | GitHub release (with tarball) | v0.1.0 tagged, release page pending publish | `dsh plugin add github:chendaleiQ/dsh-chrome` |
 | DSH Discover index | Ready | Settings → Plugins → Discover, add the raw URL of `market/index.json` (see [market/README.md](market/README.md)) |
 | Local directory | Always works | Plugins → Add plugin → pick this directory |

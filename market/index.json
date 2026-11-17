@@ -45,9 +45,7 @@
           "version": "0.1.0",
           "publishTimestamp": 1794902607,
           "source": {
-            "type": "git",
-            "url": "https://github.com/chendaleiQ/dsh-chrome.git",
-            "commit": "3d7b68ded827006b9bf2ad01765c5b554faf50a6"
+            "type": "npm"
           },
           "engines": {}
         }

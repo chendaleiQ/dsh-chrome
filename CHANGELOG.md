@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- 分发：npm `@chendaleiq/dsh-chrome@0.1.0` 已发布；market 索引切到 npm source
+  （Discover 走 CDN 安装）。
+
 - 安装引导：`chrome_onboard` 工具 + 首次加载自动打开文件管理器（`open -R` /
   `explorer /select` / `xdg-open`，`.onboarded` 标记只做一次）。
   Onboarding: `chrome_onboard` tool + auto-reveal on first load.
