@@ -20,10 +20,21 @@ function isLocalProcess(req) {
   return !req.headers.origin && !req.headers["sec-fetch-site"];
 }
 
-function isExtensionRequest(req) {
+// 扩展请求判定（关键词：允许无 Origin + 简单 fetch，不允许导航/页面）：
+// - MV3 service worker 的 fetch 不带 Origin，带 sec-fetch-site: none + mode: cors；
+// - 带 chrome-extension:// Origin 的直接放行；
+// - 带其它 Origin（如网页）一律拒绝；
+// - 导航模式（地址栏输入）拒绝，只接受 fetch（cors/no-cors）。
+// 注意 /command 仍只认本机进程（isLocalProcess），不受此影响。
+export function isExtensionRequest(req) {
   const origin = req.headers.origin || "";
   if (origin.startsWith("chrome-extension://")) return true;
-  return !req.headers.origin && !req.headers["sec-fetch-site"];
+  if (origin !== "") return false;
+  const site = req.headers["sec-fetch-site"];
+  if (site !== undefined && site !== "none") return false;
+  const mode = req.headers["sec-fetch-mode"];
+  if (mode !== undefined && mode !== "cors" && mode !== "no-cors") return false;
+  return true;
 }
 
 function readJson(req, limit = 1024 * 1024) {
@@ -142,7 +153,14 @@ export function createBridge({ host = "127.0.0.1", port = 17319 } = {}) {
       }
       if (req.method === "GET" && url.pathname === "/next") {
         if (!isExtensionRequest(req)) {
-          json(res, 403, { ok: false, error: "extension only" });
+          const observed = {
+            origin: req.headers.origin,
+            secFetchSite: req.headers["sec-fetch-site"],
+            secFetchMode: req.headers["sec-fetch-mode"],
+            secFetchDest: req.headers["sec-fetch-dest"],
+          };
+          console.error(`[dsh-chrome] /next rejected: ${JSON.stringify(observed)}`);
+          json(res, 403, { ok: false, error: "extension only", observed });
           return;
         }
         lastSeenAt = Date.now();
@@ -170,7 +188,14 @@ export function createBridge({ host = "127.0.0.1", port = 17319 } = {}) {
       }
       if (req.method === "POST" && url.pathname === "/result") {
         if (!isExtensionRequest(req)) {
-          json(res, 403, { ok: false, error: "extension only" });
+          const observed = {
+            origin: req.headers.origin,
+            secFetchSite: req.headers["sec-fetch-site"],
+            secFetchMode: req.headers["sec-fetch-mode"],
+            secFetchDest: req.headers["sec-fetch-dest"],
+          };
+          console.error(`[dsh-chrome] /result rejected: ${JSON.stringify(observed)}`);
+          json(res, 403, { ok: false, error: "extension only", observed });
           return;
         }
         lastSeenAt = Date.now();
